@@ -10,7 +10,7 @@ const OUTPUT_PATH = fileURLToPath(new URL('../public/data.json', import.meta.url
 interface SdioTeam {
   TeamID: number
   Key: string
-  PrimaryColor: string | null
+  PrimaryColor: string
 }
 
 interface SdioGame {
@@ -103,25 +103,19 @@ async function fetchTeamGames(team: SdioTeam, apiKey: string): Promise<SdioGame[
 }
 
 /** "CE1141" (API format, no leading #) → "#CE1141". */
-function toCssColor(primaryColor: string | null, teamKey: string): string {
-  if (!primaryColor || !/^[0-9A-Fa-f]{6}$/.test(primaryColor)) {
-    throw new Error(`${teamKey} has a missing or malformed PrimaryColor: ${String(primaryColor)}`)
-  }
+function toCssColor(primaryColor: string): string {
   return `#${primaryColor}`
 }
 
 /** "2025-10-22T19:30:00" → "2025-10-22". */
-function toDateOnly(day: string | null | undefined, context: string): string {
+function toDateOnly(day: string | null | undefined): string {
   const date = (day ?? '').slice(0, 10)
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    throw new Error(`Missing or malformed Day on ${context}: ${String(day)}`)
-  }
   return date
 }
 
 function toTeamGameRecord(row: SdioGame): TeamGame {
   return {
-    date: toDateOnly(row.Day, `${row.Team} game ${row.GameID}`),
+    date: toDateOnly(row.Day),
     gameId: row.GameID,
     teamId: row.TeamID,
     teamKey: row.Team,
@@ -140,7 +134,7 @@ function toTeamGameRecord(row: SdioGame): TeamGame {
 
 function toOpponentGameRecord(row: SdioGame): OpponentGame {
   return {
-    date: toDateOnly(row.Day, `${row.Opponent} (allowed) game ${row.GameID}`),
+    date: toDateOnly(row.Day),
     gameId: row.GameID,
     teamId: row.OpponentID,
     teamKey: row.Opponent,
@@ -170,19 +164,20 @@ function buildTeamEntry(team: SdioTeam, allRows: SdioGame[]): TeamEntry {
   return {
     teamId: team.TeamID,
     key: team.Key,
-    color: toCssColor(team.PrimaryColor, team.Key),
+    color: toCssColor(team.PrimaryColor),
     teamGames,
     opponentGames,
   }
 }
 
 async function main(): Promise<void> {
-  const apiKey = requireApiKey()
 
+  const apiKey = requireApiKey()
   console.log('Fetching teams...')
   const teams = await fetchTeams(apiKey)
 
   const allRows: SdioGame[] = []
+  
   for (const team of teams) {
     const games = await fetchTeamGames(team, apiKey)
     allRows.push(...games)
