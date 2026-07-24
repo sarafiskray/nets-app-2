@@ -1,1 +1,12 @@
 @import 'tailwindcss';
+
+@theme {
+  --color-page: #f8f3e9; /* page background — pale maple cream */
+  --color-surface: #fffdf8; /* cards & chart panel — warm white */
+  --color-ink: #1f2a44; /* headings & primary text — darkened NBA-logo navy */
+  --color-ink-muted: #6c6557; /* secondary text, axis labels — warm taupe */
+  --color-line: #e3d9c6; /* borders, dividers, chart gridlines */
+  --color-hardwood: #b98a5e; /* decorative only — rules & underlines, never text */
+  --color-accent: #1d428a; /* interactive — NBA-logo blue */
+  --color-accent-red: #c8102e; /* NBA-logo red — pinpoint use only */
+}
