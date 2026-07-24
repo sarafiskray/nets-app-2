@@ -37,8 +37,9 @@ for that game. You produce the OpponentGame view by keying on `OpponentID` inste
 - **Storage = a single static JSON file**, produced by a **one-off local job**:
   30 game-log calls (one per team) + 1 Teams-endpoint call (for colors), joined on `TeamID`.
 - **Hosting:** GitHub Pages (a plain static site).
-- **App:** single-page, **no routing.** Controls: a **stat dropdown** + a **number-of-games
-  picker** + the chart. That's the entire v1 UI.
+- **App:** single-page, **no routing.** Controls: a **stat rail** (14 pill buttons) + a
+  **range rail** (7 preset pills + calendar date picker) + the chart. That's the entire v1 UI.
+  (See "Front-end design" section below for the locked layout spec.)
 
 ### v1 scope
 Uses **last season's completed data only** (immutable → a static JSON is sufficient; no
@@ -80,13 +81,14 @@ Records are **TRIMMED to only the fields the chart uses** — not the full API p
 | Stocks | `Steals` + `BlockedShots` (precomputed) | teamGame |
 | Fouls | `PersonalFouls` | teamGame |
 | FTA | `FreeThrowsAttempted` | teamGame |
-| FTA Against | `FreeThrowsAttempted` | opponentGame |
+| FTA Allowed | `FreeThrowsAttempted` | opponentGame |
 | OREB | `OffensiveRebounds` | teamGame |
 | OREB Allowed | `OffensiveRebounds` | opponentGame |
 | Assists | `Assists` | teamGame |
 
-"Allowed/Against" = the same field read from the opponentGame view. The stat dropdown must map
-each entry to **(which list, which field)** so the transform routes to the right data.
+"Allowed" = the same field read from the opponentGame view (label convention settled
+2026-07-24: ALL opponent stats use the "Allowed" suffix, never "Against"). The stat picker must
+map each entry to **(which list, which field)** so the transform routes to the right data.
 
 ## Verified facts about the API payload (confirmed from a real response — don't re-check)
 
@@ -136,16 +138,23 @@ each entry to **(which list, which field)** so the transform routes to the right
 ## The render-time transform (this is the "massaging")
 
 Stored per-game JSON is NOT the chart's shape. Rebuild the chart array on every change of stat
-or games-count (useMemo keyed on `[stat, numGames]`). Per team:
-1. Pick the list — `teamGame` vs `opponentGame` — per the selected stat's mapping.
-2. Slice the last X rows (lists are already date-sorted).
-3. Sum the selected field → one number.
+or range (useMemo keyed on `[stat, range]`). Per team:
+1. Pick the list — `teamGames` vs `opponentGames` — per the selected stat's mapping.
+2. Select the rows for the range: last-X / first-X = a slice (lists are already date-sorted);
+   custom date range = filter by `date` within [from, to].
+3. Sum the selected field, **divide by the number of selected rows** → per-game average
+   (decided 2026-07-24: averages EVERYWHERE, all range modes).
 4. Emit `{ team, value, fill }` (fill from the team color map).
-Then sort the 30 objects (usually descending) and hand to `<BarChart>`.
+Then sort the 30 objects **descending** (always — top = most) and hand to `<BarChart>`.
 
 Two clearly separated layers:
-- **Stored JSON** → optimized for slice-last-X-and-sum (per-team date-sorted per-game rows).
+- **Stored JSON** → optimized for slice-and-average (per-team date-sorted per-game rows).
 - **Chart array** → 30 flat objects, built at render, thrown away and rebuilt on each change.
+
+Why averages everywhere: for preset ranges every team divides by the same X, so the chart is
+visually IDENTICAL to totals (axis numbers shrink, bar ratios don't change) — but for custom
+date ranges teams play unequal game counts, and averaging is what keeps the comparison fair.
+Basketball decision-makers are also more used to per-game numbers.
 
 ## Tech (confirmed 2026-07-23)
 - **React + Recharts + TypeScript.** TS is confirmed (not optional): type the stored JSON,
@@ -159,11 +168,14 @@ Two clearly separated layers:
   background; near-white/very light primaries are the ones needing a fallback color.
 - **Chart orientation: horizontal bars** (confirmed) — i.e. Recharts `layout="vertical"`
   (see naming quirk below). Bars grow left-to-right, 30 team names stacked down the Y axis.
-- Averages are NOT being built. Possibly show the average in a hover/tooltip only
-  (`total ÷ X`, computed inline). This is primarily a VISUAL tool.
-- Note: for v1 (all teams played a full 82), total vs. average give the SAME ranking (uniform
-  ÷X scale). Average only becomes analytically distinct once live data brings unequal game
-  counts.
+- **Chart values: per-game AVERAGES everywhere** (decided 2026-07-24, supersedes the earlier
+  "averages are not being built" note). Rationale in the render-time transform section.
+- **react-day-picker** for the custom date-range calendar (decided 2026-07-24), themed to the
+  Tailwind tokens.
+- **Tailwind theme tokens** (light mode, "hardwood & logo" palette, approved 2026-07-24) live
+  in `src/index.css` under `@theme` — page/surface/ink/ink-muted/line/hardwood/accent/
+  accent-red. Chart chrome uses the quiet ones (line, ink-muted, surface); accents stay
+  pinpoint because ~half the league's team colors are themselves reds and blues.
 
 ## Top-level JSON shape (settled 2026-07-23; source of truth = scripts/build-data.ts)
 - **Array of teams** (not an object keyed by TeamID). Team identity lives at team level.
@@ -172,6 +184,27 @@ Two clearly separated layers:
 - Top level: `{ season, teams }`.
 - The exact record shapes are the `TeamGame`/`OpponentGame` interfaces in
   **`scripts/build-data.ts`** — consult that file rather than re-deriving.
+
+## Front-end design (locked 2026-07-24, from owner's notebook mockup)
+
+Three-zone layout, title centered at top (title TEXT is still TBD — use a placeholder):
+- **Left rail — stat picker:** 14 rounded pill buttons, one per stat, in this order/labels:
+  Points, Points Allowed, 3PM, 3PM Allowed, 3PA, 3PA Allowed, TO, Stocks, Fouls, FTA,
+  FTA Allowed, OREB, OREB Allowed, Assists. Hoverable; the selected pill must be clearly
+  distinct (working treatment: filled accent blue, white text; unselected = surface bg with
+  line border; hover = light tint).
+- **Center — the chart** (Recharts horizontal bars, per the Recharts section).
+- **Right rail — range picker:** 7 rounded pill buttons: Last 5, Last 10, Last 25,
+  Full Season, First 5, First 10, First 25. Beneath them, a **react-day-picker** calendar
+  for a custom date range.
+- **Presets and calendar are MUTUALLY EXCLUSIVE** — one range source of truth; whatever was
+  chosen last wins (picking a preset clears custom dates; committing a date range deselects
+  the preset).
+- **Default view on load: 3PA Allowed + Last 10 games.**
+- **Sort: always descending** (longest bar on top). A sort-direction toggle is a noted
+  FUTURE idea, not v1.
+- **Desktop-first; NO custom responsive logic in v1.** Standard flexible sizing only; tablet
+  working is a bonus, phones are out of scope.
 
 ## Build workflow & code style (owner's standing instructions)
 - **The owner is the sole decision-maker.** Any time a decision comes up that wasn't clearly
@@ -186,8 +219,12 @@ Two clearly separated layers:
   color + contrast caveat.
 
 ## Still open
-- **Exact stored-JSON record/field shape** — owner will supply when building the data job.
-- Owner has a **notebook mockup** of the layout — ask to see it before building the page
-  layout/controls.
+- **Page title text** — owner will supply; build with a placeholder until then.
+- **GitHub Pages deploy** — deliberately deferred until the front end is in a better state.
+  Single deploy of the whole Vite build (data.json ships inside `public/` → `dist/`).
+- **data.json minification** — pretty-printed for development debugging; consider minifying
+  for production.
+- Future ideas parked by the owner: sort-direction toggle; possibly sticky side rails while
+  the tall 30-bar chart scrolls.
 
 
