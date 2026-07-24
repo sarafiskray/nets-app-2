@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# API key for the data build job — must never be committed
+.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

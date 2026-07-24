@@ -51,16 +51,19 @@ identical. Does not need to work for next season yet.
 Per team, TWO date-sorted lists: `teamGame` (82 records) and `opponentGame` (82 records).
 Records are **TRIMMED to only the fields the chart uses** — not the full API payload.
 
-- **Every record carries:** `date`, `GameID`, `TeamID`, `TeamName`.
+- **Every record carries:** `date`, `gameId`, `teamId`, `teamKey` (the abbreviation, e.g.
+  "BKN" — full team names are NOT stored; the key is what the page will display).
   (On OpponentGame records these identify the team the list belongs to — whose "allowed"
-  numbers they are — while the stat values are what the opponent did to them.)
+  numbers they are — while the stat values are what the opponent did to them. The build
+  script reads the key from the row's `Team` field for teamGames and `Opponent` field for
+  opponentGames.)
 - **TeamGame stat fields (9):** `points`, `threePointersMade`, `threePointersAttempted`,
   `turnovers`, `stocks`, `personalFouls`, `freeThrowsAttempted`, `offensiveRebounds`, `assists`.
 - **OpponentGame stat fields (5 — the "Allowed" stats only):** `points`, `threePointersMade`,
   `threePointersAttempted`, `freeThrowsAttempted`, `offensiveRebounds`. (No `stocks` — not an
   Allowed stat.)
 - **`stocks` is PRECOMPUTED** = Steals + BlockedShots, stored as one field (TeamGame only).
-- **Team color** stored ONCE at the team level (next to `TeamName`), not per row.
+- **Team color** stored ONCE at the team level (next to `key`), not per row.
 - Sort each list by `date`. NBA teams never play twice in one day, so date alone is a total
   ordering — "last X" is a simple slice, no GameID tiebreaker needed.
 
@@ -162,12 +165,13 @@ Two clearly separated layers:
   ÷X scale). Average only becomes analytically distinct once live data brings unequal game
   counts.
 
-## Top-level JSON shape (direction decided 2026-07-23; exact shape owner-provided later)
+## Top-level JSON shape (settled 2026-07-23; source of truth = scripts/build-data.ts)
 - **Array of teams** (not an object keyed by TeamID). Team identity lives at team level.
-- Per team: identity fields (including the team **`Key`** abbreviation, e.g. "BKN") + color,
+- Per team: `teamId`, `key` (the abbreviation, e.g. "BKN" — no full-name field), `color`,
   plus two 82-record lists named **`teamGames`** and **`opponentGames`** (plural).
-- **The owner will provide the EXACT data shape when we build the data job — do not invent
-  field-level details before then.**
+- Top level: `{ season, teams }`.
+- The exact record shapes are the `TeamGame`/`OpponentGame` interfaces in
+  **`scripts/build-data.ts`** — consult that file rather than re-deriving.
 
 ## Build workflow & code style (owner's standing instructions)
 - **The owner is the sole decision-maker.** Any time a decision comes up that wasn't clearly
