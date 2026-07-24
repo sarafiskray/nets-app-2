@@ -144,24 +144,46 @@ Two clearly separated layers:
 - **Stored JSON** → optimized for slice-last-X-and-sum (per-team date-sorted per-game rows).
 - **Chart array** → 30 flat objects, built at render, thrown away and rebuilt on each change.
 
-## Tech
-- **React + Recharts.** TypeScript is a nice-to-have, NOT required.
-- Almost certainly **Vite** (Create React App is deprecated). **Set Vite `base` to
-  `/<repo-name>/`** or the GitHub Pages build 404s its own JS/CSS (blank page). Since there's no
-  routing, relative fetch paths for the JSON are fine once `base` is set.
+## Tech (confirmed 2026-07-23)
+- **React + Recharts + TypeScript.** TS is confirmed (not optional): type the stored JSON,
+  the stat-config map, and component props — the two-layer data design should be
+  self-documenting.
+- **Vite** (confirmed). **Set Vite `base` to `/<repo-name>/`** or the GitHub Pages build 404s
+  its own JS/CSS (blank page). Since there's no routing, relative fetch paths for the JSON are
+  fine once `base` is set.
+- **Tailwind CSS** for all styling (confirmed).
+- **Light mode ONLY** (confirmed). No dark theme. Vet all 30 team colors against the light
+  background; near-white/very light primaries are the ones needing a fallback color.
+- **Chart orientation: horizontal bars** (confirmed) — i.e. Recharts `layout="vertical"`
+  (see naming quirk below). Bars grow left-to-right, 30 team names stacked down the Y axis.
 - Averages are NOT being built. Possibly show the average in a hover/tooltip only
   (`total ÷ X`, computed inline). This is primarily a VISUAL tool.
 - Note: for v1 (all teams played a full 82), total vs. average give the SAME ranking (uniform
   ÷X scale). Average only becomes analytically distinct once live data brings unequal game
   counts.
 
-## Still open (decide when building)
-- **Exact top-level JSON shape** (object keyed by TeamID vs. array of teams; team identity at
-  team level vs. repeated per row). Deferred pending a look at Recharts — but note the chart
-  array is derived regardless, so this is a storage-ergonomics choice, not a Recharts constraint.
-- Owner has a **notebook mockup** of the layout.
+## Top-level JSON shape (direction decided 2026-07-23; exact shape owner-provided later)
+- **Array of teams** (not an object keyed by TeamID). Team identity lives at team level.
+- Per team: identity fields (including the team **`Key`** abbreviation, e.g. "BKN") + color,
+  plus two 82-record lists named **`teamGames`** and **`opponentGames`** (plural).
+- **The owner will provide the EXACT data shape when we build the data job — do not invent
+  field-level details before then.**
 
-## Useful skill
-When building the chart, consider invoking the **`dataviz` skill** (`/dataviz`) — it covers
-chart color systems, accessible palettes, axis/legend/tooltip conventions, and light/dark
-theming. Relevant here given the per-team color requirement and contrast caveat above.
+## Build workflow & code style (owner's standing instructions)
+- **The owner is the sole decision-maker.** Any time a decision comes up that wasn't clearly
+  instructed — naming, structure, library choice, anything — ASK the owner. Do not assume or
+  decide unilaterally. When the owner asks a question, answer it and STOP; do not resume the
+  pending action until they say to proceed.
+- **Build one component at a time, ONLY when the owner asks for it.** Do not build ahead,
+  scaffold extra components, or "while I'm here" anything. The owner names the next component.
+- **Prioritize code readability and reusability** over cleverness or brevity.
+- When building the chart, invoke the **`dataviz` skill** (`/dataviz`) first — chart color
+  systems, accessible palettes, axis/tooltip conventions. Directly relevant to the per-team
+  color + contrast caveat.
+
+## Still open
+- **Exact stored-JSON record/field shape** — owner will supply when building the data job.
+- Owner has a **notebook mockup** of the layout — ask to see it before building the page
+  layout/controls.
+
+
