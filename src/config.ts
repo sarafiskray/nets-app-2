@@ -27,3 +27,21 @@ export const STATS = [
 ] as const satisfies readonly StatConfig[]
 
 export type StatLabel = (typeof STATS)[number]['label']
+
+export interface RangePresetConfig {
+  label: string
+  kind: 'last' | 'first' | 'all'
+  count?: number
+}
+
+export const RANGE_PRESETS = [
+  { label: 'Last 5', kind: 'last', count: 5 },
+  { label: 'Last 10', kind: 'last', count: 10 },
+  { label: 'Last 25', kind: 'last', count: 25 },
+  { label: 'Full Season', kind: 'all' },
+  { label: 'First 5', kind: 'first', count: 5 },
+  { label: 'First 10', kind: 'first', count: 10 },
+  { label: 'First 25', kind: 'first', count: 25 },
+] as const satisfies readonly RangePresetConfig[]
+
+export type RangePreset = (typeof RANGE_PRESETS)[number]['label']
