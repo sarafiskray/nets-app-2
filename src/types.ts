@@ -31,7 +31,7 @@ export interface OpponentGame {
   offensiveRebounds: number
 }
 
-export interface TeamEntry {
+export interface Team {
   teamId: number
   key: string
   color: string
@@ -41,7 +41,7 @@ export interface TeamEntry {
 
 export interface StatsResponse {
   season: string
-  teams: TeamEntry[]
+  teams: Team[]
 }
 
 // one range source of truth: a preset OR a custom date window (dates are YYYY-MM-DD)

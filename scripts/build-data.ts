@@ -1,6 +1,6 @@
 import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import type { TeamGame, OpponentGame, TeamEntry, StatsResponse } from '../src/types.ts'
+import type { TeamGame, OpponentGame, Team, StatsResponse } from '../src/types.ts'
 
 const SEASON = '2026' 
 const SCORES_API = 'https://api.sportsdata.io/v3/nba/scores/json'
@@ -110,7 +110,7 @@ function byDateAscending(a: { date: string }, b: { date: string }): number {
   return a.date.localeCompare(b.date)
 }
 
-function buildTeamEntry(team: SdioTeam, allRows: SdioGame[]): TeamEntry {
+function buildTeamEntry(team: SdioTeam, allRows: SdioGame[]): Team {
   const teamGames = allRows
     .filter((row) => row.TeamID === team.TeamID)
     .map(toTeamGameRecord)
