@@ -1,5 +1,5 @@
 import Pill from './Pill'
-import { STATS, type StatLabel } from '../config/stats'
+import { STATS, type StatLabel } from '../config'
 
 interface StatPickerProps {
   selectedStat: StatLabel

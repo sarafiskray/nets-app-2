@@ -1,5 +1,6 @@
 import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import type { TeamGame, OpponentGame, TeamEntry, StatsResponse } from '../src/types.ts'
 
 const SEASON = '2026' 
 const SCORES_API = 'https://api.sportsdata.io/v3/nba/scores/json'
@@ -30,47 +31,6 @@ interface SdioGame {
   FreeThrowsAttempted: number
   OffensiveRebounds: number
   Assists: number
-}
-
-interface TeamGame {
-  date: string
-  gameId: number
-  teamId: number
-  teamKey: string
-  points: number
-  threePointersMade: number
-  threePointersAttempted: number
-  turnovers: number
-  stocks: number 
-  personalFouls: number
-  freeThrowsAttempted: number
-  offensiveRebounds: number
-  assists: number
-}
-
-interface OpponentGame {
-  date: string
-  gameId: number
-  teamId: number
-  teamKey: string
-  points: number
-  threePointersMade: number
-  threePointersAttempted: number
-  freeThrowsAttempted: number
-  offensiveRebounds: number
-}
-
-interface TeamEntry {
-  teamId: number
-  key: string
-  color: string
-  teamGames: TeamGame[]
-  opponentGames: OpponentGame[]
-}
-
-interface StatsResponse {
-  season: string
-  teams: TeamEntry[]
 }
 
 async function fetchJson<T>(url: string, apiKey: string): Promise<T> {
