@@ -1,5 +1,5 @@
 // .ts extension required: this file is also compiled by the node project (build script)
-import type { RangePreset } from './config.ts'
+import type { GameRange } from './config.ts'
 
 // shape of the stored data.json — the shared contract between scripts/build-data.ts and the app
 
@@ -46,5 +46,5 @@ export interface StatsResponse {
 
 // one range source of truth: a preset OR a custom date window (dates are YYYY-MM-DD)
 export type RangeSelection =
-  | { mode: 'preset'; preset: RangePreset }
+  | { mode: 'numGames'; selectedGames: GameRange }
   | { mode: 'dates'; from: string; to: string }

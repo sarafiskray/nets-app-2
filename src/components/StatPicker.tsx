@@ -1,9 +1,9 @@
 import Pill from './Pill'
-import { STATS, type StatLabel } from '../config'
+import { STATS, type Stat } from '../config'
 
 interface StatPickerProps {
-  selectedStat: StatLabel
-  onSelect: (stat: StatLabel) => void
+  selectedStat: Stat
+  onSelect: (stat: Stat) => void
 }
 
 function StatPicker({ selectedStat, onSelect }: StatPickerProps) {
