@@ -116,24 +116,25 @@ map each entry to **(which list, which field)** so the transform routes to the r
 - **Contrast caveat:** some primaries are near-black/white and can vanish against the chart
   background. Eyeball the 30 and keep a fallback (or use secondary for problem teams).
 
-## Recharts BarChart — how it wants the data
+## The chart — hand-rolled with Framer Motion (decided 2026-07-26, SUPERSEDES Recharts)
 
-- `data` prop = a **flat array of one object per bar.** For this tool: 30 objects, one per team.
-  Shape: `[{ team, value, fill }, ...]`.
-- `<Bar dataKey="value">`, `<YAxis type="category" dataKey="team">`, `<XAxis type="number">`.
-- **Use `layout="vertical"`** (Recharts naming quirk: `vertical` layout = HORIZONTAL bars).
-  Far more readable for 30 team labels than the default (which crowds labels on the X axis).
-  Bump the **left margin** (or category-axis `width`) so team names don't clip.
-- **Per-bar color needs a `<Cell>` per data point** inside `<Bar>` (a single `<Bar>` is
-  otherwise uniform-colored):
-  ```jsx
-  <Bar dataKey="value">
-    {data.map(d => <Cell key={d.team} fill={d.fill} />)}
-  </Bar>
-  ```
-- **The `value` KEY stays constant** across all stats — only the number swaps. Selecting a
-  different stat just re-runs the transform and hands Recharts a fresh array; chart config
-  never changes.
+**No charting library.** The chart is a bespoke React component: 30 horizontal rows, each a
+team key + a colored bar whose width = value ÷ axisMax, styled entirely with the Tailwind
+tokens and animated with Framer Motion (npm package `motion`).
+
+Why the switch from Recharts: **bar color = team identity.** On a re-sort, a fixed-row chart
+library animates lengths in place, so a row's bar visibly CHANGES COLOR — one team appears to
+morph into another. The honest animation moves each keyed bar to its new rank carrying its
+color; Framer Motion's `layout` prop does exactly that (FLIP + spring) and chart libraries
+don't. This chart's needs are tiny (one series, linear scale, no legend/stacking), so owning
+the small parts is cheap: axis ticks + gridlines (~25 lines) and a plain-HTML tooltip.
+(Nivo was the considered library alternative; rejected for theming ceilings and dependency
+weight. react-day-picker remains the calendar choice — this decision changes nothing else.)
+
+- Chart array = **flat array of one object per bar**, 30 objects: `{ key, color, value }`.
+- Rows are keyed by team key; `motion.div` with `layout` animates re-sorts; bar widths and
+  the axis max animate as values change.
+- Axis max: a "nice" rounded value above the data max, recomputed per transform.
 
 ## The render-time transform (this is the "massaging")
 
@@ -144,8 +145,8 @@ or range (useMemo keyed on `[stat, range]`). Per team:
    custom date range = filter by `date` within [from, to].
 3. Sum the selected field, **divide by the number of selected rows** → per-game average
    (decided 2026-07-24: averages EVERYWHERE, all range modes).
-4. Emit `{ team, value, fill }` (fill from the team color map).
-Then sort the 30 objects **descending** (always — top = most) and hand to `<BarChart>`.
+4. Emit `{ key, color, value }` (color from the team entry).
+Then sort the 30 objects **descending** (always — top = most) and hand to the Chart component.
 
 Two clearly separated layers:
 - **Stored JSON** → optimized for slice-and-average (per-team date-sorted per-game rows).
@@ -156,18 +157,20 @@ visually IDENTICAL to totals (axis numbers shrink, bar ratios don't change) — 
 date ranges teams play unequal game counts, and averaging is what keeps the comparison fair.
 Basketball decision-makers are also more used to per-game numbers.
 
-## Tech (confirmed 2026-07-23)
-- **React + Recharts + TypeScript.** TS is confirmed (not optional): type the stored JSON,
+## Tech (confirmed 2026-07-23; charting decision revised 2026-07-26)
+- **React + TypeScript.** TS is confirmed (not optional): type the stored JSON,
   the stat-config map, and component props — the two-layer data design should be
   self-documenting.
+- **Framer Motion (`motion` package) + hand-rolled chart, NOT Recharts** (decided 2026-07-26
+  — see the chart section for the full rationale).
 - **Vite** (confirmed). **Set Vite `base` to `/<repo-name>/`** or the GitHub Pages build 404s
   its own JS/CSS (blank page). Since there's no routing, relative fetch paths for the JSON are
   fine once `base` is set.
 - **Tailwind CSS** for all styling (confirmed).
 - **Light mode ONLY** (confirmed). No dark theme. Vet all 30 team colors against the light
   background; near-white/very light primaries are the ones needing a fallback color.
-- **Chart orientation: horizontal bars** (confirmed) — i.e. Recharts `layout="vertical"`
-  (see naming quirk below). Bars grow left-to-right, 30 team names stacked down the Y axis.
+- **Chart orientation: horizontal bars** (confirmed). Bars grow left-to-right, 30 team keys
+  stacked down the left edge.
 - **Chart values: per-game AVERAGES everywhere** (decided 2026-07-24, supersedes the earlier
   "averages are not being built" note). Rationale in the render-time transform section.
 - **react-day-picker** for the custom date-range calendar (decided 2026-07-24), themed to the
@@ -193,7 +196,7 @@ Three-zone layout, title centered at top (title TEXT is still TBD — use a plac
   FTA Allowed, OREB, OREB Allowed, Assists. Hoverable; the selected pill must be clearly
   distinct (working treatment: filled accent blue, white text; unselected = surface bg with
   line border; hover = light tint).
-- **Center — the chart** (Recharts horizontal bars, per the Recharts section).
+- **Center — the chart** (hand-rolled Framer Motion horizontal bars, per the chart section).
 - **Right rail — range picker:** 7 rounded pill buttons: Last 5, Last 10, Last 25,
   Full Season, First 5, First 10, First 25. Beneath them, a **react-day-picker** calendar
   for a custom date range.
