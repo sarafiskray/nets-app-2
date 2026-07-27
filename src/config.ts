@@ -28,7 +28,7 @@ export const STATS = [
 
 export type Stat = (typeof STATS)[number]['label']
 
-export interface NumberOfGamesConfig {
+export interface GameRangeConfig {
   label: string
   kind: 'last' | 'first' | 'all'
   count?: number
@@ -42,6 +42,6 @@ export const GAME_RANGES = [
   { label: 'First 5', kind: 'first', count: 5 },
   { label: 'First 10', kind: 'first', count: 10 },
   { label: 'First 25', kind: 'first', count: 25 },
-] as const satisfies readonly NumberOfGamesConfig[]
+] as const satisfies readonly GameRangeConfig[]
 
 export type GameRange = (typeof GAME_RANGES)[number]['label']

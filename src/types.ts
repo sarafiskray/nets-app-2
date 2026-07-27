@@ -45,6 +45,6 @@ export interface StatsResponse {
 }
 
 // one range source of truth: a preset OR a custom date window (dates are YYYY-MM-DD)
-export type RangeSelection =
+export type GameRangeSelection =
   | { mode: 'numGames'; selectedGames: GameRange }
   | { mode: 'dates'; from: string; to: string }

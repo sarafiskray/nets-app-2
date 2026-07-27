@@ -1,9 +1,9 @@
 import Pill from './Pill'
 import { GAME_RANGES, type GameRange } from '../config'
-import type { RangeSelection } from '../types'
+import type { GameRangeSelection } from '../types'
 
 interface RangePickerProps {
-  selectedRange: RangeSelection
+  selectedRange: GameRangeSelection
   onSelect: (preset: GameRange) => void
 }
 

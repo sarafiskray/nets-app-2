@@ -3,12 +3,12 @@ import './App.css'
 import StatPicker from './components/StatPicker'
 import RangePicker from './components/RangePicker'
 import type { Stat, GameRange } from './config'
-import type { RangeSelection, StatsResponse } from './types'
+import type { GameRangeSelection, StatsResponse } from './types'
 
 function App() {
 
   const [selectedStat, setSelectedStat] = useState<Stat>('3PA Allowed')
-  const [selectedRange, setSelectedRange] = useState<RangeSelection>({ mode: 'numGames', selectedGames: 'Last 10' })
+  const [selectedGameRange, setSelectedGameRange] = useState<GameRangeSelection>({ mode: 'numGames', selectedGames: 'Last 10' })
   const [data, setData] = useState<StatsResponse | null>(null)
   //this shouldn't really ever error but good for debugging
   const [loadError, setLoadError] = useState(false)
@@ -24,14 +24,14 @@ function App() {
   }, [])
 
   const selectStat = (stat: Stat) => {
-    // console.log('selectedStat →', stat)
+     console.log('selectedStat →', stat)
     setSelectedStat(stat)
   }
 
-  const selectPreset = (preset: GameRange) => {
-    const range: RangeSelection = { mode: 'numGames', selectedGames: preset }
-    // console.log('selectedRange →', range)
-    setSelectedRange(range)
+  const selectGameRange = (preset: GameRange) => {
+    const range: GameRangeSelection = { mode: 'numGames', selectedGames: preset }
+     console.log('selectedRange →', range)
+    setSelectedGameRange(range)
   }
 
   return (
@@ -48,7 +48,7 @@ function App() {
       </main>
 
       <aside className="w-44 shrink-0">
-        <RangePicker selectedRange={selectedRange} onSelect={selectPreset} />
+        <RangePicker selectedRange={selectedGameRange} onSelect={selectGameRange} />
       </aside>
 
     </div>
