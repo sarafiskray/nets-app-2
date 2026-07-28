@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import StatPicker from './components/StatPicker'
 import RangePicker from './components/RangePicker'
+import Chart from './components/Chart'
 import { transformData } from './transform-data'
 import type { Stat, GameRange } from './config'
 import type { GameRangeSelection, StatsResponse } from './types'
@@ -44,6 +45,12 @@ function App() {
     setSelectedGameRange(range)
   }
 
+  const loadChart = () => {
+    if (loadError) return <p className="text-ink-muted">Could not load data.json</p>
+    if (!data) return <p className="text-ink-muted">Loading…</p>
+    return <Chart bars={teamBars} />
+  }
+
   return (
     <div className="flex min-h-dvh bg-page p-6 text-ink">
 
@@ -51,11 +58,7 @@ function App() {
         <StatPicker selectedStat={selectedStat} onSelect={selectStat} />
       </aside>
 
-      {/* chart goes here */}
-      <main className="flex-1">
-        {loadError && <p className="text-ink-muted">Could not load data.json</p>}
-        {!loadError && !data && <p className="text-ink-muted">Loading…</p>}
-      </main>
+      <main className="flex-1 px-6">{loadChart()}</main>
 
       <aside className="w-44 shrink-0">
         <RangePicker selectedRange={selectedGameRange} onSelect={selectGameRange} />

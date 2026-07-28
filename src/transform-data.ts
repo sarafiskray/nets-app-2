@@ -1,10 +1,10 @@
 import { GAME_RANGES, STATS, type Stat } from './config'
-import type { GameRangeSelection, OpponentGame, Team, TeamBar, TeamGame } from './types'
+import type { GameRangeSelection, OpponentGame, Team, TeamBarData, TeamGame } from './types'
 
 //for this case, a game can be a TeamGame or an OpponentGame
 type Game = TeamGame | OpponentGame
 
-export function transformData(teams: Team[], selectedStat: Stat, selectedGameRange: GameRangeSelection,): TeamBar[] {
+export function transformData(teams: Team[], selectedStat: Stat, selectedGameRange: GameRangeSelection,): TeamBarData[] {
 
   const statConfig = STATS.find((s) => s.label === selectedStat)!
 

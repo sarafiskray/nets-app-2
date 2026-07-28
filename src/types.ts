@@ -44,12 +44,12 @@ export interface StatsResponse {
   teams: Team[]
 }
 
-// one range source of truth: a preset OR a custom date window (dates are YYYY-MM-DD)
+// users can choose number of games or date range
 export type GameRangeSelection =
   | { mode: 'numGames'; selectedGames: GameRange }
   | { mode: 'dates'; from: string; to: string }
 
-export interface TeamBar {
+export interface TeamBarData {
   key: string
   color: string
   value: number
