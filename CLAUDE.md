@@ -47,9 +47,9 @@ freshness concern). Live/current-season support is deferred and is a data-SOURCE
 (local job → serverless proxy or scheduled job), NOT a rewrite, because the data shape stays
 identical. Does not need to work for next season yet.
 
-## The stored JSON (design decided; exact top-level shape TBD — see below)
+## The stored JSON (settled; record shapes live in src/types.ts)
 
-Per team, TWO date-sorted lists: `teamGame` (82 records) and `opponentGame` (82 records).
+Per team, TWO date-sorted lists: `teamGames` (82 records) and `opponentGames` (82 records).
 Records are **TRIMMED to only the fields the chart uses** — not the full API payload.
 
 - **Every record carries:** `date`, `gameId`, `teamId`, `teamKey` (the abbreviation, e.g.
@@ -126,15 +126,25 @@ Why the switch from Recharts: **bar color = team identity.** On a re-sort, a fix
 library animates lengths in place, so a row's bar visibly CHANGES COLOR — one team appears to
 morph into another. The honest animation moves each keyed bar to its new rank carrying its
 color; Framer Motion's `layout` prop does exactly that (FLIP + spring) and chart libraries
-don't. This chart's needs are tiny (one series, linear scale, no legend/stacking), so owning
-the small parts is cheap: axis ticks + gridlines (~25 lines) and a plain-HTML tooltip.
+don't. This chart's needs are tiny (one series, linear scale, no legend/stacking).
 (Nivo was the considered library alternative; rejected for theming ceilings and dependency
 weight. react-day-picker remains the calendar choice — this decision changes nothing else.)
 
-- Chart array = **flat array of one object per bar**, 30 objects: `{ key, color, value }`.
+- Chart array = **flat array of one object per bar**, 30 objects (`TeamBarData`).
 - Rows are keyed by team key; `motion.div` with `layout` animates re-sorts; bar widths and
-  the axis max animate as values change.
-- Axis max: a "nice" rounded value above the data max, recomputed per transform.
+  the axis max animate as values change. (Motion layer not yet built as of 2026-07-27.)
+- Axis max: a "nice" rounded value above the data max (`niceAxisMax` in Chart.tsx), tuned so
+  the top bar lands near full width — mitigates narrow-spread stats (Points) looking flat.
+- **NO axis chrome** (decided 2026-07-27 after an interactive preview): no tick marks, no
+  numeric labels, no gridlines, no baseline. Values are permanently labeled at each bar's
+  right edge, which makes axis numbers redundant. Fixed-quarter gridlines were tried and
+  removed.
+- **NO hover/tooltip layer** (decided 2026-07-26): same reason — every value is always
+  visible. The planned hover step was deleted, not deferred.
+- **Median divider:** a dashed `hardwood` rule between ranks 15 and 16.
+- **Chart panel fits the viewport** (`max-h calc(100dvh - page padding)`) and scrolls
+  INTERNALLY with a hidden scrollbar (`scrollbar-hidden` utility in index.css); the page
+  itself never scrolls, so both pill rails always stay in view.
 
 ## The render-time transform (this is the "massaging")
 
@@ -180,13 +190,15 @@ Basketball decision-makers are also more used to per-game numbers.
   accent-red. Chart chrome uses the quiet ones (line, ink-muted, surface); accents stay
   pinpoint because ~half the league's team colors are themselves reds and blues.
 
-## Top-level JSON shape (settled 2026-07-23; source of truth = scripts/build-data.ts)
+## Top-level JSON shape (settled 2026-07-23; source of truth = src/types.ts)
 - **Array of teams** (not an object keyed by TeamID). Team identity lives at team level.
 - Per team: `teamId`, `key` (the abbreviation, e.g. "BKN" — no full-name field), `color`,
   plus two 82-record lists named **`teamGames`** and **`opponentGames`** (plural).
 - Top level: `{ season, teams }`.
-- The exact record shapes are the `TeamGame`/`OpponentGame` interfaces in
-  **`scripts/build-data.ts`** — consult that file rather than re-deriving.
+- The exact record shapes are the `TeamGame`/`OpponentGame`/`Team`/`StatsResponse` interfaces
+  in **`src/types.ts`** — the shared contract, imported type-only by `scripts/build-data.ts`
+  so script output and app expectations cannot drift. Consult it rather than re-deriving.
+  (App-side: `TeamBarData` = one chart bar; `GameRangeSelection` = the range state union.)
 
 ## Front-end design (locked 2026-07-24, from owner's notebook mockup)
 
@@ -221,13 +233,28 @@ Three-zone layout, title centered at top (title TEXT is still TBD — use a plac
   systems, accessible palettes, axis/tooltip conventions. Directly relevant to the per-team
   color + contrast caveat.
 
+## Build status & sequencing (as of 2026-07-27)
+Built and working: data job + data.json ✓ · Pill/StatPicker/RangePicker rails ✓ · App state
+(selectedStat, selectedGameRange union) ✓ · data loading ✓ · transform-data.ts ✓ · static
+chart (Chart/Bar) with median divider + viewport-fit scroll panel ✓.
+**Owner's sequencing decision (2026-07-27): finish FUNCTIONAL work first — the Framer Motion
+layer, then the react-day-picker date range — BEFORE any appearance touch-ups (sizing,
+colors, "modern bar" styling).** Appearance work is parked, not forgotten (see below).
+Temporary console.logs in App.tsx stay until final cleanup.
+
 ## Still open
 - **Page title text** — owner will supply; build with a placeholder until then.
 - **GitHub Pages deploy** — deliberately deferred until the front end is in a better state.
   Single deploy of the whole Vite build (data.json ships inside `public/` → `dist/`).
 - **data.json minification** — pretty-printed for development debugging; consider minifying
   for production.
-- Future ideas parked by the owner: sort-direction toggle; possibly sticky side rails while
-  the tall 30-bar chart scrolls.
+- **Appearance polish pass (after motion + date picker):** bigger/cleaner typography scale,
+  "more modern" bar styling, and possibly **secondary/tertiary team colors** for bar design —
+  that one needs build-data.ts to store 2–3 colors per team and an owner-run data rebuild.
+  Owner also briefly trialed a dark "court at night" page theme (2026-07-27) and reverted —
+  a theme revisit may come with this pass; src/index.css @theme is always the palette's
+  source of truth.
+- Future ideas parked by the owner: sort-direction toggle. (Sticky side rails: SATISFIED —
+  the viewport-fit chart panel means the page never scrolls.)
 
 
