@@ -1,4 +1,5 @@
 import { Fragment } from 'react'
+import { MotionConfig } from 'motion/react'
 import Bar from './Bar'
 import type { TeamBarData as TeamBarData } from '../types'
 
@@ -20,17 +21,21 @@ function Chart({ bars }: ChartProps) {
   const axisMax = niceAxisMax(Math.max(...bars.map((bar) => bar.value)))
 
   return (
-    <div className="flex max-h-[calc(100dvh-3rem)] flex-col rounded-lg border border-line bg-surface p-6">
-      {/* the scroll happens here, inside the panel's padding */}
-      <div className="scrollbar-hidden flex min-h-0 flex-col gap-2 overflow-y-auto">
-        {bars.map((bar, index) => (
-          <Fragment key={bar.key}>
-            <Bar bar={bar} axisMax={axisMax} />
-            {index === 14 && <div className="border-t-2 border-dashed border-hardwood" />}
-          </Fragment>
-        ))}
+    //reducedMotion="user": if the OS asks for reduced motion, Motion drops the
+    //movement animations (glide/lift) automatically and keeps only the fades
+    <MotionConfig reducedMotion="user">
+      <div className="flex max-h-[calc(100dvh-3rem)] flex-col rounded-lg border border-line bg-surface p-6">
+        {/* the scroll happens here, inside the panel's padding */}
+        <div className="scrollbar-hidden flex min-h-0 flex-col gap-2 overflow-y-auto">
+          {bars.map((bar, index) => (
+            <Fragment key={bar.key}>
+              <Bar bar={bar} axisMax={axisMax} />
+              {index === 14 && <div className="border-t-2 border-dashed border-hardwood" />}
+            </Fragment>
+          ))}
+        </div>
       </div>
-    </div>
+    </MotionConfig>
   )
 }
 
