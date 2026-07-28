@@ -10,3 +10,11 @@
   --color-accent: #1d428a; /* interactive — NBA-logo blue */
   --color-accent-red: #c8102e; /* NBA-logo red — pinpoint use only */
 }
+
+/* scrolls without showing a scrollbar */
+@utility scrollbar-hidden {
+  scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Edge, Safari */
+  }
+}

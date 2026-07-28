@@ -20,8 +20,9 @@ function Chart({ bars }: ChartProps) {
   const axisMax = niceAxisMax(Math.max(...bars.map((bar) => bar.value)))
 
   return (
-    <div className="rounded-lg border border-line bg-surface p-6">
-      <div className="flex flex-col gap-1.5">
+    <div className="flex max-h-[calc(100dvh-3rem)] flex-col rounded-lg border border-line bg-surface p-6">
+      {/* the scroll happens here, inside the panel's padding */}
+      <div className="scrollbar-hidden flex min-h-0 flex-col gap-2 overflow-y-auto">
         {bars.map((bar, index) => (
           <Fragment key={bar.key}>
             <Bar bar={bar} axisMax={axisMax} />
