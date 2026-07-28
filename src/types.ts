@@ -34,7 +34,10 @@ export interface OpponentGame {
 export interface Team {
   teamId: number
   key: string
-  color: string
+  color1: string
+  color2: string
+  color3: string
+  color4: string
   teamGames: TeamGame[]
   opponentGames: OpponentGame[]
 }
@@ -51,6 +54,9 @@ export type GameRangeSelection =
 
 export interface TeamBarData {
   key: string
-  color: string
+  color1: string
+  color2: string
+  color3: string
+  color4: string
   value: number
 }

@@ -4,7 +4,10 @@
     {
       "teamId": 1,
       "key": "WAS",
-      "color": "#002B5C",
+      "color1": "#002B5C",
+      "color2": "#E31837",
+      "color3": "#C4CED4",
+      "color4": "#FFFFFF",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -2145,7 +2148,10 @@
     {
       "teamId": 2,
       "key": "CHA",
-      "color": "#00788C",
+      "color1": "#00788C",
+      "color2": "#1D1160",
+      "color3": "#A1A1A4",
+      "color4": "#FFFFFF",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -4286,7 +4292,10 @@
     {
       "teamId": 3,
       "key": "ATL",
-      "color": "#C8102E",
+      "color1": "#C8102E",
+      "color2": "#FDB927",
+      "color3": "#000000",
+      "color4": "#9EA2A2",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -6427,7 +6436,10 @@
     {
       "teamId": 4,
       "key": "MIA",
-      "color": "#000000",
+      "color1": "#000000",
+      "color2": "#98002E",
+      "color3": "#F9A01B",
+      "color4": "#null",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -8568,7 +8580,10 @@
     {
       "teamId": 5,
       "key": "ORL",
-      "color": "#0050B5",
+      "color1": "#0050B5",
+      "color2": "#000000",
+      "color3": "#C4CED4",
+      "color4": "#null",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -10709,7 +10724,10 @@
     {
       "teamId": 6,
       "key": "NY",
-      "color": "#1D428A",
+      "color1": "#1D428A",
+      "color2": "#F58426",
+      "color3": "#9EA2A2",
+      "color4": "#000000",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -12850,7 +12868,10 @@
     {
       "teamId": 7,
       "key": "PHI",
-      "color": "#1D428A",
+      "color1": "#1D428A",
+      "color2": "#C8102E",
+      "color3": "#9EA2A2",
+      "color4": "#002B5C",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -14991,7 +15012,10 @@
     {
       "teamId": 8,
       "key": "BKN",
-      "color": "#000000",
+      "color1": "#000000",
+      "color2": "#FFFFFF",
+      "color3": "#6F7271",
+      "color4": "#null",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -17132,7 +17156,10 @@
     {
       "teamId": 9,
       "key": "BOS",
-      "color": "#008348",
+      "color1": "#008348",
+      "color2": "#FFFFFF",
+      "color3": "#000000",
+      "color4": "#BB9753",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -19273,7 +19300,10 @@
     {
       "teamId": 10,
       "key": "TOR",
-      "color": "#CE1141",
+      "color1": "#CE1141",
+      "color2": "#000000",
+      "color3": "#393A96",
+      "color4": "#B4975A",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -21414,7 +21444,10 @@
     {
       "teamId": 11,
       "key": "CHI",
-      "color": "#CE1141",
+      "color1": "#CE1141",
+      "color2": "#000000",
+      "color3": "#FFFFFF",
+      "color4": "#null",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -23555,7 +23588,10 @@
     {
       "teamId": 12,
       "key": "CLE",
-      "color": "#860038",
+      "color1": "#860038",
+      "color2": "#BC945C",
+      "color3": "#000000",
+      "color4": "#null",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -25696,7 +25732,10 @@
     {
       "teamId": 13,
       "key": "IND",
-      "color": "#0C2340",
+      "color1": "#0C2340",
+      "color2": "#FFD520",
+      "color3": "#9EA2A2",
+      "color4": "#null",
       "teamGames": [
         {
           "date": "2025-10-23",
@@ -27837,7 +27876,10 @@
     {
       "teamId": 14,
       "key": "DET",
-      "color": "#1D428A",
+      "color1": "#1D428A",
+      "color2": "#C8102E",
+      "color3": "#BEC0C2",
+      "color4": "#000000",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -29978,7 +30020,10 @@
     {
       "teamId": 15,
       "key": "MIL",
-      "color": "#00471B",
+      "color1": "#00471B",
+      "color2": "#EEE1C6",
+      "color3": "#0077C0",
+      "color4": "#000000",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -32119,7 +32164,10 @@
     {
       "teamId": 16,
       "key": "MIN",
-      "color": "#1D428A",
+      "color1": "#1D428A",
+      "color2": "#009A44",
+      "color3": "#C1C6C8",
+      "color4": "#000000",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -34260,7 +34308,10 @@
     {
       "teamId": 17,
       "key": "UTA",
-      "color": "#4E008E",
+      "color1": "#4E008E",
+      "color2": "#000000",
+      "color3": "#79A3DC",
+      "color4": "#E5E8E6",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -36401,7 +36452,10 @@
     {
       "teamId": 18,
       "key": "OKC",
-      "color": "#007AC1",
+      "color1": "#007AC1",
+      "color2": "#EF3B24",
+      "color3": "#FDBB30",
+      "color4": "#002D62",
       "teamGames": [
         {
           "date": "2025-10-21",
@@ -38542,7 +38596,10 @@
     {
       "teamId": 19,
       "key": "POR",
-      "color": "#000000",
+      "color1": "#000000",
+      "color2": "#E03A3E",
+      "color3": "#FFFFFF",
+      "color4": "#null",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -40683,7 +40740,10 @@
     {
       "teamId": 20,
       "key": "DEN",
-      "color": "#0E2240",
+      "color1": "#0E2240",
+      "color2": "#FEC524",
+      "color3": "#8B2131",
+      "color4": "#244289",
       "teamGames": [
         {
           "date": "2025-10-23",
@@ -42824,7 +42884,10 @@
     {
       "teamId": 21,
       "key": "MEM",
-      "color": "#5D76A9",
+      "color1": "#5D76A9",
+      "color2": "#12173F",
+      "color3": "#707271",
+      "color4": "#F5B112",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -44965,7 +45028,10 @@
     {
       "teamId": 22,
       "key": "HOU",
-      "color": "#CE0E2D",
+      "color1": "#CE0E2D",
+      "color2": "#FFD520",
+      "color3": "#000000",
+      "color4": "#FFFFFF",
       "teamGames": [
         {
           "date": "2025-10-21",
@@ -47106,7 +47172,10 @@
     {
       "teamId": 23,
       "key": "NO",
-      "color": "#0C2340",
+      "color1": "#0C2340",
+      "color2": "#B9975B",
+      "color3": "#CE0E2D",
+      "color4": "#null",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -49247,7 +49316,10 @@
     {
       "teamId": 24,
       "key": "SA",
-      "color": "#C4CED4",
+      "color1": "#C4CED4",
+      "color2": "#000000",
+      "color3": "#FFFFFF",
+      "color4": "#null",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -51388,7 +51460,10 @@
     {
       "teamId": 25,
       "key": "DAL",
-      "color": "#0064B1",
+      "color1": "#0064B1",
+      "color2": "#00285E",
+      "color3": "#B8C4CA",
+      "color4": "#000000",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -53529,7 +53604,10 @@
     {
       "teamId": 26,
       "key": "GS",
-      "color": "#1D428A",
+      "color1": "#1D428A",
+      "color2": "#FDB927",
+      "color3": "#000000",
+      "color4": "#null",
       "teamGames": [
         {
           "date": "2025-10-21",
@@ -55670,7 +55748,10 @@
     {
       "teamId": 27,
       "key": "LAL",
-      "color": "#31006F",
+      "color1": "#31006F",
+      "color2": "#FDB927",
+      "color3": "#000000",
+      "color4": "#null",
       "teamGames": [
         {
           "date": "2025-10-21",
@@ -57811,7 +57892,10 @@
     {
       "teamId": 28,
       "key": "LAC",
-      "color": "#12173F",
+      "color1": "#12173F",
+      "color2": "#C8102E",
+      "color3": "#4891CE",
+      "color4": "#A0A2A3",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -59952,7 +60036,10 @@
     {
       "teamId": 29,
       "key": "PHO",
-      "color": "#1D1160",
+      "color1": "#1D1160",
+      "color2": "#E56020",
+      "color3": "#000000",
+      "color4": "#63727A",
       "teamGames": [
         {
           "date": "2025-10-22",
@@ -62093,7 +62180,10 @@
     {
       "teamId": 30,
       "key": "SAC",
-      "color": "#000000",
+      "color1": "#000000",
+      "color2": "#5A2D81",
+      "color3": "#707271",
+      "color4": "#FFFFFF",
       "teamGames": [
         {
           "date": "2025-10-22",

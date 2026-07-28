@@ -12,6 +12,10 @@ interface SdioTeam {
   TeamID: number
   Key: string
   PrimaryColor: string
+  SecondaryColor: string
+  TertiaryColor: string
+  QuaternaryColor: string
+  Color3: string
 }
 
 interface SdioGame {
@@ -63,8 +67,8 @@ async function fetchTeamGames(team: SdioTeam, apiKey: string): Promise<SdioGame[
 }
 
 /** "CE1141" (API format, no leading #) → "#CE1141". */
-function toCssColor(primaryColor: string): string {
-  return `#${primaryColor}`
+function toCssColor(color: string): string {
+  return `#${color}`
 }
 
 /** "2025-10-22T19:30:00" → "2025-10-22". */
@@ -124,7 +128,10 @@ function buildTeamEntry(team: SdioTeam, allRows: SdioGame[]): Team {
   return {
     teamId: team.TeamID,
     key: team.Key,
-    color: toCssColor(team.PrimaryColor),
+    color1: toCssColor(team.PrimaryColor),
+    color2: toCssColor(team.SecondaryColor),
+    color3: toCssColor(team.TertiaryColor),
+    color4: toCssColor(team.QuaternaryColor),
     teamGames,
     opponentGames,
   }
