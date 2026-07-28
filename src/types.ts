@@ -48,3 +48,9 @@ export interface StatsResponse {
 export type GameRangeSelection =
   | { mode: 'numGames'; selectedGames: GameRange }
   | { mode: 'dates'; from: string; to: string }
+
+export interface TeamBar {
+  key: string
+  color: string
+  value: number
+}
