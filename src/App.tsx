@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import StatPicker from './components/StatPicker'
 import RangePicker from './components/RangePicker'
+import { transformData } from './transform-data'
 import type { Stat, GameRange } from './config'
 import type { GameRangeSelection, StatsResponse } from './types'
 
@@ -23,13 +24,22 @@ function App() {
       .catch(() => setLoadError(true))
   }, [])
 
+  //rebuilds only when the data or a selection changes
+  const teamBars = useMemo(() => {
+    if (!data) return []
+    return transformData(data.teams, selectedStat, selectedGameRange)
+  }, [data, selectedStat, selectedGameRange])
+
+  //temporary, to verify the transform output
+  console.log('teamBars →', teamBars)
+
   const selectStat = (stat: Stat) => {
      console.log('selectedStat →', stat)
     setSelectedStat(stat)
   }
 
-  const selectGameRange = (preset: GameRange) => {
-    const range: GameRangeSelection = { mode: 'numGames', selectedGames: preset }
+  const selectGameRange = (gameRange: GameRange) => {
+    const range: GameRangeSelection = { mode: 'numGames', selectedGames: gameRange }
      console.log('selectedRange →', range)
     setSelectedGameRange(range)
   }
