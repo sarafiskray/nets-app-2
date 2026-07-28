@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import Bar from './Bar'
 import type { TeamBarData as TeamBarData } from '../types'
 
@@ -21,8 +22,11 @@ function Chart({ bars }: ChartProps) {
   return (
     <div className="rounded-lg border border-line bg-surface p-6">
       <div className="flex flex-col gap-1.5">
-        {bars.map((bar) => (
-          <Bar key={bar.key} bar={bar} axisMax={axisMax} />
+        {bars.map((bar, index) => (
+          <Fragment key={bar.key}>
+            <Bar bar={bar} axisMax={axisMax} />
+            {index === 14 && <div className="border-t-2 border-dashed border-hardwood" />}
+          </Fragment>
         ))}
       </div>
     </div>
