@@ -13,6 +13,7 @@ export function transformData(teams: Team[], selectedStat: Stat, selectedGameRan
     color1: team.color1,
     color2: team.color2,
     color3: team.color3,
+    color4: team.color4,
     //calculate the average of the selected stat over the selected games
     value: calculateAverage(selectGames(team[statConfig.view], selectedGameRange), statConfig.fieldName),
   }))
