@@ -12,6 +12,9 @@ import type { GameRangeSelection, StatsResponse } from './types'
 //the view the app opens on
 const DEFAULT_PRESET = GAME_RANGE_PRESETS.find((preset) => preset.label === 'Last 10')!
 
+//quiet helper text over each rail — deliberately recessive so the pills carry the eye
+const railHeading = 'mb-2 text-center text-xs font-semibold tracking-wider uppercase text-ink-muted'
+
 function App() {
 
   const [selectedStat, setSelectedStat] = useState<Stat>('3PA Allowed')
@@ -72,12 +75,16 @@ function App() {
     <div className="flex min-h-dvh bg-page p-6 text-ink">
 
       <aside className="w-44 shrink-0">
+        <h2 className={railHeading}>Select a Stat</h2>
         <StatPicker selectedStat={selectedStat} onSelect={selectStat} />
       </aside>
 
-      <main className="flex-1 px-6">{loadChart()}</main>
+      <main className="flex-1 px-6">
+        {loadChart()}
+      </main>
 
       <aside className="w-44 shrink-0">
+        <h2 className={railHeading}>Select a Game Range</h2>
         <RangePicker selectedRange={selectedGameRange} onSelect={selectGameRange} />
         <DatePicker selectedRange={selectedGameRange} onSelect={selectDateRange} />
         <GamePicker selectedRange={selectedGameRange} onSelect={selectCustomGames} />

@@ -24,6 +24,10 @@ function Chart({ bars }: ChartProps) {
 
     <MotionConfig reducedMotion="never">
       <div className="flex max-h-[calc(100dvh-3rem)] flex-col rounded-lg border border-line bg-surface p-6">
+
+        {/* stays put while the bars scroll beneath it */}
+        <h1 className="mb-4 text-center text-2xl font-semibold tracking-tight">NBA Team Stat Trends</h1>
+
         {/* scrollable chart w hidden scrollbar */}
         <div className="scrollbar-hidden flex min-h-0 flex-col gap-2 overflow-y-auto">
           {bars.map((bar, index) => (
