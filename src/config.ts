@@ -45,3 +45,6 @@ export const GAME_RANGES = [
 ] as const satisfies readonly GameRangeConfig[]
 
 export type GameRange = (typeof GAME_RANGES)[number]['label']
+
+export const SEASON_START = new Date(2025, 9, 22)
+export const SEASON_END = new Date(2026, 3, 12)
