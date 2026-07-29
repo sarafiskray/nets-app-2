@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import StatPicker from './components/StatPicker'
 import RangePicker from './components/RangePicker'
+import DatePicker from './components/DatePicker'
 import Chart from './components/Chart'
 import { transformData } from './transform-data'
 import type { Stat, GameRange } from './config'
@@ -45,6 +46,12 @@ function App() {
     setSelectedGameRange(range)
   }
 
+  const selectDateRange = (from: string, to: string) => {
+    const range: GameRangeSelection = { mode: 'dates', from, to }
+     console.log('selectedRange →', range)
+    setSelectedGameRange(range)
+  }
+
   const loadChart = () => {
     if (loadError) return <p className="text-ink-muted">Could not load data.json</p>
     if (!data) return <p className="text-ink-muted">Loading…</p>
@@ -62,6 +69,7 @@ function App() {
 
       <aside className="w-44 shrink-0">
         <RangePicker selectedRange={selectedGameRange} onSelect={selectGameRange} />
+        <DatePicker selectedRange={selectedGameRange} onSelect={selectDateRange} />
       </aside>
 
     </div>
