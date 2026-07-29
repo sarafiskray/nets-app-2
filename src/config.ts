@@ -28,23 +28,25 @@ export const STATS = [
 
 export type Stat = (typeof STATS)[number]['label']
 
-export interface GameRangeConfig {
+export const GAMES_IN_SEASON = 82
+
+export interface GameRangeButtonConfig {
   label: string
-  slice: 'last' | 'first' | 'all'
-  count?: number
+  startGame: number
+  endGame: number
 }
 
-export const GAME_RANGES = [
-  { label: 'Last 5', slice: 'last', count: 5 },
-  { label: 'Last 10', slice: 'last', count: 10 },
-  { label: 'Last 25', slice: 'last', count: 25 },
-  { label: 'Full Season', slice: 'all' },
-  { label: 'First 5', slice: 'first', count: 5 },
-  { label: 'First 10', slice: 'first', count: 10 },
-  { label: 'First 25', slice: 'first', count: 25 },
-] as const satisfies readonly GameRangeConfig[]
+export const GAME_RANGE_PRESETS = [
+  { label: 'Last 5', startGame: 78, endGame: 82 },
+  { label: 'Last 10', startGame: 73, endGame: 82 },
+  { label: 'Last 25', startGame: 58, endGame: 82 },
+  { label: 'Full Season', startGame: 1, endGame: 82 },
+  { label: 'First 5', startGame: 1, endGame: 5 },
+  { label: 'First 10', startGame: 1, endGame: 10 },
+  { label: 'First 25', startGame: 1, endGame: 25 },
+] as const satisfies readonly GameRangeButtonConfig[]
 
-export type GameRange = (typeof GAME_RANGES)[number]['label']
+export type GameRangePreset = (typeof GAME_RANGE_PRESETS)[number]
 
-export const SEASON_START = new Date(2025, 9, 22)
+export const SEASON_START = new Date(2025, 9, 21)
 export const SEASON_END = new Date(2026, 3, 12)

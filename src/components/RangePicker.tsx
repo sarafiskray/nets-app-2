@@ -1,22 +1,22 @@
 import Pill from './Pill'
-import { GAME_RANGES, type GameRange } from '../config'
+import { GAME_RANGE_PRESETS, type GameRangePreset } from '../config'
 import type { GameRangeSelection } from '../types'
 
 interface RangePickerProps {
   selectedRange: GameRangeSelection
-  onSelect: (preset: GameRange) => void
+  onSelect: (preset: GameRangePreset) => void
 }
 
 function RangePicker({ selectedRange, onSelect }: RangePickerProps) {
   return (
     <div className="flex flex-col gap-2">
-      {GAME_RANGES.map((preset) => (
+      {GAME_RANGE_PRESETS.map((preset) => (
         <Pill
           key={preset.label}
           label={preset.label}
           color="red"
-          isSelected={selectedRange.mode === 'numGames' && selectedRange.selectedGames === preset.label}
-          onSelect={() => onSelect(preset.label)}
+          isSelected={selectedRange.mode === 'numGames' && selectedRange.label === preset.label}
+          onSelect={() => onSelect(preset)}
         />
       ))}
     </div>

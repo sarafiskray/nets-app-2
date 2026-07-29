@@ -1,5 +1,5 @@
 // .ts extension required: this file is also compiled by the node project (build script)
-import type { GameRange } from './config.ts'
+import type { GameRangePreset } from './config.ts'
 
 // shape of the stored data.json — the shared contract between scripts/build-data.ts and the app
 
@@ -47,9 +47,10 @@ export interface StatsResponse {
   teams: Team[]
 }
 
-// users can choose number of games or date range
+// users can choose number of games or date range.
+// label is set only when a preset pill was clicked — a custom game range leaves it undefined
 export type GameRangeSelection =
-  | { mode: 'numGames'; selectedGames: GameRange }
+  | { mode: 'numGames'; startGame: number; endGame: number; label?: GameRangePreset['label'] }
   | { mode: 'dates'; from: string; to: string }
 
 export interface TeamBarData {

@@ -1,4 +1,4 @@
-import { GAME_RANGES, STATS, type Stat } from './config'
+import { STATS, type Stat } from './config'
 import type { GameRangeSelection, OpponentGame, Team, TeamBarData, TeamGame } from './types'
 
 //for this case, a game can be a TeamGame or an OpponentGame
@@ -26,11 +26,9 @@ function selectGames(games: readonly Game[], range: GameRangeSelection): readonl
   if (range.mode === 'dates') {
     return games.filter((game) => game.date >= range.from && game.date <= range.to)
   }
-  //number of games picker
-  const rangeConfig = GAME_RANGES.find((r) => r.label === range.selectedGames)!
-  if (rangeConfig.slice === 'last') return games.slice(-rangeConfig.count)
-  if (rangeConfig.slice === 'first') return games.slice(0, rangeConfig.count)
-  return games
+  //presets and the custom game picker both land here — game numbers are 1-based
+  //and inclusive, slice is 0-based and exclusive
+  return games.slice(range.startGame - 1, range.endGame)
 }
 
 function calculateAverage(games: readonly Game[], fieldName: string): number {
