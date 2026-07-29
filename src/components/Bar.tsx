@@ -14,6 +14,16 @@ interface BarProps {
 }
 
 function Bar({ bar, axisMax }: BarProps) {
+  //the "sheen × weave" bar treatment (V5 from the preview artifact).
+  //sheen: solid primary melting diagonally into a primary/secondary blend at the leading end.
+  //weave: fine diagonal threads of the TERTIARY color (22% strength) laid over the sheen.
+  //115° leans both patterns toward the bar's growing end — the movement suggestion.
+  //the left end starts slightly LIGHTENED (14% white) so dark primaries don't read as a heavy slab
+  const sheen = `linear-gradient(115deg, color-mix(in srgb, ${bar.color1} 86%, white) 0%, ${bar.color1} 45%, color-mix(in srgb, ${bar.color1} 55%, ${bar.color2}) 100%)`
+  const weave = `repeating-linear-gradient(115deg, color-mix(in srgb, ${bar.color3} 22%, transparent) 0px, color-mix(in srgb, ${bar.color3} 22%, transparent) 1.5px, transparent 1.5px, transparent 7px)`
+  //border: the team's own primary darkened ~28% — crisp edge against the cream panel for all 30 teams
+  const border = `1.5px solid color-mix(in srgb, ${bar.color1} 78%, black)`
+
   return (
     /*
       this is the full row, including the team name, which glides vertically
@@ -37,7 +47,7 @@ function Bar({ bar, axisMax }: BarProps) {
         animate={{ width: `${(bar.value / axisMax) * 100}%` }}
         transition={spring}
         className="h-5 rounded-r"
-        style={{ backgroundColor: bar.color1 }}
+        style={{ border, backgroundColor: bar.color1, backgroundImage: `${weave}, ${sheen}` }}
       />
 
       {/*
