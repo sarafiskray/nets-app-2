@@ -21,11 +21,10 @@ function Chart({ bars }: ChartProps) {
   const axisMax = niceAxisMax(Math.max(...bars.map((bar) => bar.value)))
 
   return (
-    //reducedMotion="user": if the OS asks for reduced motion, Motion drops the
-    //movement animations (glide/lift) automatically and keeps only the fades
-    <MotionConfig reducedMotion="user">
+
+    <MotionConfig reducedMotion="never">
       <div className="flex max-h-[calc(100dvh-3rem)] flex-col rounded-lg border border-line bg-surface p-6">
-        {/* the scroll happens here, inside the panel's padding */}
+        {/* scrollable chart w hidden scrollbar */}
         <div className="scrollbar-hidden flex min-h-0 flex-col gap-2 overflow-y-auto">
           {bars.map((bar, index) => (
             <Fragment key={bar.key}>
