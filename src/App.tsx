@@ -3,15 +3,19 @@ import './App.css'
 import StatPicker from './components/StatPicker'
 import RangePicker from './components/RangePicker'
 import DatePicker from './components/DatePicker'
+import GamePicker from './components/GamePicker'
 import Chart from './components/Chart'
 import { transformData } from './transform-data'
-import type { Stat, GameRange } from './config'
+import { GAME_RANGE_PRESETS, type Stat, type GameRangePreset } from './config'
 import type { GameRangeSelection, StatsResponse } from './types'
+
+//the view the app opens on
+const DEFAULT_PRESET = GAME_RANGE_PRESETS.find((preset) => preset.label === 'Last 10')!
 
 function App() {
 
   const [selectedStat, setSelectedStat] = useState<Stat>('3PA Allowed')
-  const [selectedGameRange, setSelectedGameRange] = useState<GameRangeSelection>({ mode: 'numGames', selectedGames: 'Last 10' })
+  const [selectedGameRange, setSelectedGameRange] = useState<GameRangeSelection>({ mode: 'numGames', ...DEFAULT_PRESET })
   const [data, setData] = useState<StatsResponse | null>(null)
   //this shouldn't really ever error but good for debugging
   const [loadError, setLoadError] = useState(false)
@@ -40,8 +44,14 @@ function App() {
     setSelectedStat(stat)
   }
 
-  const selectGameRange = (gameRange: GameRange) => {
-    const range: GameRangeSelection = { mode: 'numGames', selectedGames: gameRange }
+  const selectGameRange = (preset: GameRangePreset) => {
+    const range: GameRangeSelection = { mode: 'numGames', ...preset }
+     console.log('selectedRange →', range)
+    setSelectedGameRange(range)
+  }
+
+  const selectCustomGames = (startGame: number, endGame: number) => {
+    const range: GameRangeSelection = { mode: 'numGames', startGame, endGame }
      console.log('selectedRange →', range)
     setSelectedGameRange(range)
   }
@@ -70,6 +80,7 @@ function App() {
       <aside className="w-44 shrink-0">
         <RangePicker selectedRange={selectedGameRange} onSelect={selectGameRange} />
         <DatePicker selectedRange={selectedGameRange} onSelect={selectDateRange} />
+        <GamePicker selectedRange={selectedGameRange} onSelect={selectCustomGames} />
       </aside>
 
     </div>

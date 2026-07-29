@@ -151,8 +151,12 @@ weight. react-day-picker remains the calendar choice — this decision changes n
 Stored per-game JSON is NOT the chart's shape. Rebuild the chart array on every change of stat
 or range (useMemo keyed on `[stat, range]`). Per team:
 1. Pick the list — `teamGames` vs `opponentGames` — per the selected stat's mapping.
-2. Select the rows for the range: last-X / first-X = a slice (lists are already date-sorted);
-   custom date range = filter by `date` within [from, to].
+2. Select the rows for the range. Two branches only (consolidated 2026-07-28):
+   - `mode: 'numGames'` → `games.slice(startGame - 1, endGame)`. Game numbers are 1-based and
+     INCLUSIVE; slice is 0-based and exclusive. Presets and the custom game picker both land
+     here — the presets are just stored index pairs (Last 10 = 73–82), so there is one code
+     path, and transform-data.ts no longer imports the preset table at all.
+   - `mode: 'dates'` → filter by `date` within [from, to] (plain string compares).
 3. Sum the selected field, **divide by the number of selected rows** → per-game average
    (decided 2026-07-24: averages EVERYWHERE, all range modes).
 4. Emit `{ key, color, value }` (color from the team entry).
@@ -210,11 +214,16 @@ Three-zone layout, title centered at top (title TEXT is still TBD — use a plac
   line border; hover = light tint).
 - **Center — the chart** (hand-rolled Framer Motion horizontal bars, per the chart section).
 - **Right rail — range picker:** 7 rounded pill buttons: Last 5, Last 10, Last 25,
-  Full Season, First 5, First 10, First 25. Beneath them, a **react-day-picker** calendar
-  for a custom date range.
-- **Presets and calendar are MUTUALLY EXCLUSIVE** — one range source of truth; whatever was
-  chosen last wins (picking a preset clears custom dates; committing a date range deselects
-  the preset).
+  Full Season, First 5, First 10, First 25. Beneath them a **react-day-picker** calendar for a
+  custom date range, and beneath that a **custom game-number range** (two 1–82 inputs).
+- **All three range sources are MUTUALLY EXCLUSIVE** — one source of truth, last choice wins.
+  This is structural, not enforced: `GameRangeSelection` is a discriminated union, so setting
+  one shape erases the others, and each control derives its own active state from it.
+  Preset pills highlight on `mode === 'numGames' && label === <pill>`; the date trigger fills
+  on `mode === 'dates'`; a custom game range is `mode === 'numGames'` with NO `label`.
+- **Custom pickers commit explicitly** — a Go button, so the chart does not move while you are
+  still choosing. Each picker keeps its draft in local state and only lifts committed values to
+  App; both use the shared `GoButton` (actions) while `Pill` stays the selection primitive.
 - **Default view on load: 3PA Allowed + Last 10 games.**
 - **Sort: always descending** (longest bar on top). A sort-direction toggle is a noted
   FUTURE idea, not v1.
@@ -233,14 +242,41 @@ Three-zone layout, title centered at top (title TEXT is still TBD — use a plac
   systems, accessible palettes, axis/tooltip conventions. Directly relevant to the per-team
   color + contrast caveat.
 
-## Build status & sequencing (as of 2026-07-27)
-Built and working: data job + data.json ✓ · Pill/StatPicker/RangePicker rails ✓ · App state
-(selectedStat, selectedGameRange union) ✓ · data loading ✓ · transform-data.ts ✓ · static
-chart (Chart/Bar) with median divider + viewport-fit scroll panel ✓.
-**Owner's sequencing decision (2026-07-27): finish FUNCTIONAL work first — the Framer Motion
-layer, then the react-day-picker date range — BEFORE any appearance touch-ups (sizing,
-colors, "modern bar" styling).** Appearance work is parked, not forgotten (see below).
-Temporary console.logs in App.tsx stay until final cleanup.
+## Build status & sequencing (as of 2026-07-28)
+**All v1 functionality is built.** data job + data.json ✓ · Pill / StatPicker / RangePicker ✓ ·
+App state ✓ · data loading ✓ · transform-data.ts ✓ · Chart/Bar with median divider +
+viewport-fit scroll panel ✓ · Framer Motion layer ✓ · DatePicker (popover) ✓ ·
+GamePicker (custom 1–82 range) ✓.
+**Owner's sequencing decision: FUNCTIONAL work first, appearance second.** With function done,
+the remaining work is styling/design (see "Still open"). Temporary console.logs in App.tsx
+stay until final cleanup.
+
+### Component inventory
+- `Pill` — the selection primitive (stat rail, range rail, popover triggers). `aria-pressed`.
+- `GoButton` — the action primitive (commit buttons in both custom pickers). No selection
+  semantics. Extracted 2026-07-28 rather than duplicating a third copy of the class string.
+- `Popover` — trigger Pill + floating panel + outside-click/Escape dismissal, shared by BOTH
+  custom pickers (extracted 2026-07-28 when GamePicker was converted to a popover for
+  consistency with DatePicker). `isOpen` is CONTROLLED by the caller so `commit()` can close
+  the panel; `isActive` fills the trigger; panel content is `children`.
+- `StatPicker` / `RangePicker` — map their config table to Pills; fully controlled.
+- `DatePicker` — popover calendar; local `range` (draft, painted by the grid) + `committed`
+  (what the trigger label shows). Separate on purpose: abandoned picks must not appear on the
+  pill, and the union forgets dates when a preset is chosen.
+- `GamePicker` — two 1–82 inputs + GoButton; inputs held as STRINGS so a cleared box stays
+  empty instead of snapping to 0. Blocks commit until both are whole numbers, in range, in order.
+- `Chart` / `Bar` — presentational; Chart owns `niceAxisMax`, Bar owns the motion + bar paint.
+
+### Motion (built 2026-07-27)
+Two animations only, both in `Bar.tsx`, sharing one spring constant:
+- `layout` on the row → the vertical glide when ranks change (this is why bar color = team
+  identity works; the bar travels rather than a fixed row changing color).
+- `animate={{ width }}` on the fill → the width morph. Deliberately NO `initial`, so nothing
+  grows from zero on mount.
+An entrance cascade, hover lift, and value ticker were built and then REMOVED — the cascade's
+mount animation made re-sorts look buggy, and the owner cut the extras. Do not reintroduce
+them without being asked. Value crossfade was rejected in favor of instant swap because
+different stats are unrelated quantities (Points → TO), so counting between them is meaningless.
 
 ## Still open
 - **Page title text** — owner will supply; build with a placeholder until then.
@@ -248,13 +284,24 @@ Temporary console.logs in App.tsx stay until final cleanup.
   Single deploy of the whole Vite build (data.json ships inside `public/` → `dist/`).
 - **data.json minification** — pretty-printed for development debugging; consider minifying
   for production.
-- **Appearance polish pass (after motion + date picker):** bigger/cleaner typography scale,
-  "more modern" bar styling, and possibly **secondary/tertiary team colors** for bar design —
-  that one needs build-data.ts to store 2–3 colors per team and an owner-run data rebuild.
-  Owner also briefly trialed a dark "court at night" page theme (2026-07-27) and reverted —
-  a theme revisit may come with this pass; src/index.css @theme is always the palette's
+- **Appearance/design pass — this is the remaining work.** All four team colors are now stored
+  and typed (`color1`–`color4`); the "sheen × weave" bar treatment (diagonal primary→secondary
+  gradient under fine tertiary threads, darkened-primary border) was designed in a preview
+  artifact and is the agreed direction. Known items: `type="number"` spinner arrows in
+  GamePicker look wrong; no visual indicator that a CUSTOM game range is active (no pill
+  lights up); typography scale; possible theme revisit (a dark "court at night" page was
+  trialed 2026-07-27 and reverted). `src/index.css` @theme is always the palette's
   source of truth.
+- **Accessibility is explicitly OUT OF SCOPE** (owner, 2026-07-28): "this app does not need to
+  be accessible." Do not add ARIA work or raise it as a finding.
 - Future ideas parked by the owner: sort-direction toggle. (Sticky side rails: SATISFIED —
   the viewport-fit chart panel means the page never scrolls.)
+
+## Deployment (decided 2026-07-28, not yet executed)
+**Explicit deploys, not continuous** — the `gh-pages` package plus a `"deploy": "npm run build
+&& gh-pages -d dist"` script, with GitHub Pages' source set to the `gh-pages` branch (that
+setting can only be made AFTER the first deploy creates the branch). Target URL:
+`sarafiskray.github.io/nets-app-2/`. Vite `base` is already `/nets-app-2/` — if the repo is
+ever renamed, that string must change with it. The owner runs deploys.
 
 
