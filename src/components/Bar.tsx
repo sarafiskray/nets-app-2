@@ -32,7 +32,7 @@ function Bar({ bar, axisMax }: BarProps) {
     <motion.div
       layout
       transition={spring}
-      className="grid grid-cols-[4rem_1fr_4.5rem] items-center gap-2"
+      className="grid cursor-pointer grid-cols-[4rem_1fr_4.5rem] items-center gap-2 rounded-md transition-colors hover:bg-line/50"
     >
 
       {/*
