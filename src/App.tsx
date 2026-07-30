@@ -6,8 +6,14 @@ import DatePicker from './components/DatePicker'
 import GamePicker from './components/GamePicker'
 import Chart from './components/Chart'
 import { buildBars } from './transform-data'
-import { type Stat, type GameRangePreset } from './config'
+import { GAME_RANGE_PRESETS, type Stat, type GameRangePreset } from './config'
 import type { GameRangeSelection, StatsResponse } from './types'
+
+//default to full season, so that users can see data with a single click
+const DEFAULT_RANGE: GameRangeSelection = {
+  mode: 'numGames',
+  ...GAME_RANGE_PRESETS.find((preset) => preset.label === 'Full Season')!,
+}
 
 //styling for right and left railings
 //buttons should scroll, making it feel similar to the chart
@@ -19,7 +25,7 @@ const railScroll = 'scrollbar-hidden min-h-0 overflow-y-auto'
 function App() {
 
   const [selectedStat, setSelectedStat] = useState<Stat | null>(null)
-  const [selectedGameRange, setSelectedGameRange] = useState<GameRangeSelection | null>(null)
+  const [selectedGameRange, setSelectedGameRange] = useState<GameRangeSelection | null>(DEFAULT_RANGE)
   const [data, setData] = useState<StatsResponse | null>(null)
   //this shouldn't really ever error but good for debugging
   const [loadError, setLoadError] = useState(false)
@@ -72,7 +78,6 @@ function App() {
     setSelectedGameRange(null)
   }
 
-  //nothing to clear until at least one of the two has been picked
   const hasSelection = selectedStat !== null || selectedGameRange !== null
 
   const loadChart = () => {
