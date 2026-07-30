@@ -4,21 +4,37 @@ import type { GameRangeSelection, OpponentGame, Team, TeamBarData, TeamGame } fr
 //for this case, a game can be a TeamGame or an OpponentGame
 type Game = TeamGame | OpponentGame
 
-export function transformData(teams: Team[], selectedStat: Stat, selectedGameRange: GameRangeSelection,): TeamBarData[] {
+export function buildBars(teams: Team[], selectedStat: Stat | null, selectedGameRange: GameRangeSelection | null,): TeamBarData[] {
+  if (!selectedStat || !selectedGameRange) return placeholderBars(teams)
+  return transformData(teams, selectedStat, selectedGameRange)
+}
+
+function transformData(teams: Team[], selectedStat: Stat, selectedGameRange: GameRangeSelection,): TeamBarData[] {
 
   const statConfig = STATS.find((s) => s.label === selectedStat)!
 
-  const bars = teams.map((team) => ({
+  const bars = teams.map((team) =>
+    //the average of the selected stat over the selected games
+    toBar(team, calculateAverage(selectGames(team[statConfig.view], selectedGameRange), statConfig.fieldName)),
+  )
+
+  return bars.sort((a, b) => b.value - a.value)
+}
+
+//shown before a stat and a range are picked: 30 empty bars, alphabetical.
+function placeholderBars(teams: Team[]): TeamBarData[] {
+  return teams.map((team) => toBar(team, 0)).sort((a, b) => a.key.localeCompare(b.key))
+}
+
+function toBar(team: Team, value: number): TeamBarData {
+  return {
     key: team.key,
     color1: team.color1,
     color2: team.color2,
     color3: team.color3,
     color4: team.color4,
-    //calculate the average of the selected stat over the selected games
-    value: calculateAverage(selectGames(team[statConfig.view], selectedGameRange), statConfig.fieldName),
-  }))
-
-  return bars.sort((a, b) => b.value - a.value)
+    value,
+  }
 }
 
 function selectGames(games: readonly Game[], range: GameRangeSelection): readonly Game[] {

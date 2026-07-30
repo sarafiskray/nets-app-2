@@ -5,20 +5,18 @@ import RangePicker from './components/RangePicker'
 import DatePicker from './components/DatePicker'
 import GamePicker from './components/GamePicker'
 import Chart from './components/Chart'
-import { transformData } from './transform-data'
-import { GAME_RANGE_PRESETS, type Stat, type GameRangePreset } from './config'
+import { buildBars } from './transform-data'
+import { type Stat, type GameRangePreset } from './config'
 import type { GameRangeSelection, StatsResponse } from './types'
-
-//the view the app opens on
-const DEFAULT_PRESET = GAME_RANGE_PRESETS.find((preset) => preset.label === 'Last 10')!
 
 //quiet helper text over each rail — deliberately recessive so the pills carry the eye
 const railHeading = 'mb-2 text-center text-xs font-semibold tracking-wider uppercase text-ink-muted'
 
 function App() {
 
-  const [selectedStat, setSelectedStat] = useState<Stat>('3PA Allowed')
-  const [selectedGameRange, setSelectedGameRange] = useState<GameRangeSelection>({ mode: 'numGames', ...DEFAULT_PRESET })
+  //both start empty — nothing is charted until the user picks a stat AND a range
+  const [selectedStat, setSelectedStat] = useState<Stat | null>(null)
+  const [selectedGameRange, setSelectedGameRange] = useState<GameRangeSelection | null>(null)
   const [data, setData] = useState<StatsResponse | null>(null)
   //this shouldn't really ever error but good for debugging
   const [loadError, setLoadError] = useState(false)
@@ -33,11 +31,12 @@ function App() {
       .catch(() => setLoadError(true))
   }, [])
 
-  //rebuilds only when the data or a selection changes
-  const teamBars = useMemo(() => {
-    if (!data) return []
-    return transformData(data.teams, selectedStat, selectedGameRange)
-  }, [data, selectedStat, selectedGameRange])
+  //rebuilds only when the data or a selection changes.
+  //buildBars owns the "nothing picked yet" case, so both selections can be handed over as-is
+  const teamBars = useMemo(
+    () => (data ? buildBars(data.teams, selectedStat, selectedGameRange) : []),
+    [data, selectedStat, selectedGameRange],
+  )
 
   //temporary, to verify the transform output
   console.log('teamBars →', teamBars)
@@ -65,10 +64,21 @@ function App() {
     setSelectedGameRange(range)
   }
 
+  //back to null for both — the chart returns to the same placeholder it loaded with.
+  //the custom pickers keep their committed labels on purpose; only their fill clears,
+  //because that is derived from the range union
+  const clearSelections = () => {
+    setSelectedStat(null)
+    setSelectedGameRange(null)
+  }
+
+  //nothing to clear until at least one of the two has been picked
+  const hasSelection = selectedStat !== null || selectedGameRange !== null
+
   const loadChart = () => {
     if (loadError) return <p className="text-ink-muted">Could not load data.json</p>
     if (!data) return <p className="text-ink-muted">Loading…</p>
-    return <Chart bars={teamBars} />
+    return <Chart bars={teamBars} onClear={clearSelections} canClear={hasSelection} />
   }
 
   return (
@@ -79,7 +89,7 @@ function App() {
         <StatPicker selectedStat={selectedStat} onSelect={selectStat} />
       </aside>
 
-      <main className="flex-1 px-6">
+      <main className="flex-1 px-6">  
         {loadChart()}
       </main>
 

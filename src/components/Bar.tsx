@@ -44,6 +44,11 @@ function Bar({ bar, axisMax }: BarProps) {
         this is the colored bar itself, which expands or reduces horizontally
       */}
       <motion.div
+        //snap straight to the animate target on the first frame rather than animating into it.
+        //on load that target is 0 (the placeholder's value), so bars still start empty — but
+        //unlike initial={{ width: 0 }} there is no separate mount state to replay, so a remount
+        //can never make a bar drop to zero and grow back mid-session
+        initial={false}
         animate={{ width: `${(bar.value / axisMax) * 100}%` }}
         transition={spring}
         className="h-5 rounded-r"
