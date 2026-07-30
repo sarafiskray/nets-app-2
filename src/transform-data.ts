@@ -4,12 +4,12 @@ import type { GameRangeSelection, OpponentGame, Team, TeamBarData, TeamGame } fr
 //for this case, a game can be a TeamGame or an OpponentGame
 type Game = TeamGame | OpponentGame
 
-export function buildBars(teams: Team[], selectedStat: Stat | null, selectedGameRange: GameRangeSelection | null,): TeamBarData[] {
+export function buildBars(teams: Team[], selectedStat: Stat | null, selectedGameRange: GameRangeSelection | null, sortAscending: boolean,): TeamBarData[] {
   if (!selectedStat || !selectedGameRange) return placeholderBars(teams)
-  return transformData(teams, selectedStat, selectedGameRange)
+  return transformData(teams, selectedStat, selectedGameRange, sortAscending)
 }
 
-function transformData(teams: Team[], selectedStat: Stat, selectedGameRange: GameRangeSelection,): TeamBarData[] {
+function transformData(teams: Team[], selectedStat: Stat, selectedGameRange: GameRangeSelection, sortAscending: boolean,): TeamBarData[] {
 
   const statConfig = STATS.find((s) => s.label === selectedStat)!
 
@@ -18,7 +18,8 @@ function transformData(teams: Team[], selectedStat: Stat, selectedGameRange: Gam
     toBar(team, calculateAverage(selectGames(team[statConfig.view], selectedGameRange), statConfig.fieldName)),
   )
 
-  return bars.sort((a, b) => b.value - a.value)
+  //respect sortAscending flag
+  return bars.sort((a, b) => (sortAscending ? a.value - b.value : b.value - a.value))
 }
 
 //shown before a stat and a range are picked: 30 empty bars, alphabetical.

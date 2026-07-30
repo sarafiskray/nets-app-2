@@ -12,22 +12,24 @@ function niceAxisMax(dataMax: number): number {
   return Math.ceil(dataMax / step) * step
 }
 
-//quiet by default so it never competes with the bars; only the hover state is accent-colored.
-//disabled is styled rather than hidden so the header row never changes height
-const clearStyles =
-  'self-end text-sm font-semibold transition disabled:cursor-not-allowed disabled:text-line enabled:cursor-pointer enabled:text-ink-muted enabled:hover:text-accent-red'
+//used for invert and clear buttons
+const headerButton =
+  'text-sm font-semibold transition disabled:cursor-not-allowed disabled:text-line enabled:cursor-pointer enabled:text-ink-muted enabled:hover:text-accent-red'
 
 interface ChartProps {
   bars: TeamBarData[]
   onClear: () => void
-  //false before anything has been picked — there is nothing to clear yet
-  canClear: boolean
-  //team keys whose rows are pinned highlighted; owned by App so Clear can empty it
+  
+  //flips the sort order
+  onInvert: () => void
+  //is any stat or game range selected
+  hasData: boolean
+  //rows that have been clicked
   selectedTeams: Set<string>
   onToggleTeam: (teamKey: string) => void
 }
 
-function Chart({ bars, onClear, canClear: dataLoaded, selectedTeams, onToggleTeam }: ChartProps) {
+function Chart({ bars, onClear, onInvert, hasData: hasSelection, selectedTeams, onToggleTeam }: ChartProps) {
 
   const axisMax = niceAxisMax(Math.max(...bars.map((bar) => bar.value)))
 
@@ -36,14 +38,20 @@ function Chart({ bars, onClear, canClear: dataLoaded, selectedTeams, onToggleTea
     <MotionConfig reducedMotion="never">
       <div className="flex max-h-[calc(100dvh-3rem)] flex-col rounded-lg border border-line bg-surface p-6">
 
-        {/* stays put while the bars scroll beneath it */}
-        {/* <h1 className="mb-4 text-center text-2xl font-semibold tracking-tight">NBA Team Stat Trends</h1> */}
+        <div className="relative mb-4 shrink-0">
+          <h1 className="text-center text-2xl font-semibold tracking-tight">NBA 2025/26 Team Stat Trends</h1>
 
-        <button type="button" onClick={onClear} disabled={!dataLoaded} className={`mb-4 ${clearStyles}`}>
-          Clear
-        </button>
+          <div className="absolute top-1/2 right-0 flex -translate-y-1/2 items-center gap-4">
+            <button type="button" onClick={onInvert} disabled={!hasSelection} className={headerButton}>
+              Invert
+            </button>
+            <button type="button" onClick={onClear} disabled={!hasSelection} className={headerButton}>
+              Clear
+            </button>
+          </div>
+        </div>
 
-        {/* scrollable chart w hidden scrollbar */}
+        {/* scrollable chart*/}
         <div className="flex min-h-0 flex-col gap-2 overflow-y-auto">
           {bars.map((bar, index) => (
             <Fragment key={bar.key}>

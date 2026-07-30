@@ -26,9 +26,8 @@ function App() {
 
   const [selectedStat, setSelectedStat] = useState<Stat | null>(null)
   const [selectedGameRange, setSelectedGameRange] = useState<GameRangeSelection | null>(DEFAULT_RANGE)
-  //team keys the user has pinned by clicking a row — a Set because order is irrelevant and
-  //membership is the only question ever asked of it
   const [selectedTeams, setSelectedTeams] = useState<Set<string>>(new Set())
+  const [isAscending, setIsAscending] = useState(false)
   const [data, setData] = useState<StatsResponse | null>(null)
   //this shouldn't really ever error but good for debugging
   const [loadError, setLoadError] = useState(false)
@@ -43,11 +42,9 @@ function App() {
       .catch(() => setLoadError(true))
   }, [])
 
-  //rebuilds only when the data or a selection changes.
-  //buildBars owns the "nothing picked yet" case, so both selections can be handed over as-is
   const teamBars = useMemo(
-    () => (data ? buildBars(data.teams, selectedStat, selectedGameRange) : []),
-    [data, selectedStat, selectedGameRange],
+    () => (data ? buildBars(data.teams, selectedStat, selectedGameRange, isAscending) : []),
+    [data, selectedStat, selectedGameRange, isAscending],
   )
 
   //temporary, to verify the transform output
@@ -76,8 +73,7 @@ function App() {
     setSelectedGameRange(range)
   }
 
-  //toggle one row's pin. a fresh Set every time — mutating the existing one keeps the same
-  //reference, and React would skip the re-render
+  //toggle whether a row is selected or not
   const toggleTeam = (teamKey: string) => {
     setSelectedTeams((pinned) => {
       const next = new Set(pinned)
@@ -90,10 +86,14 @@ function App() {
     })
   }
 
+  const toggleSortDirection = () => setIsAscending((ascending) => !ascending)
+
+  //Clear resets the sort direction too — descending is part of the app's starting state
   const clearSelections = () => {
     setSelectedStat(null)
     setSelectedGameRange(null)
     setSelectedTeams(new Set())
+    setIsAscending(false)
   }
 
   const hasSelection = selectedStat !== null || selectedGameRange !== null
@@ -105,7 +105,8 @@ function App() {
       <Chart
         bars={teamBars}
         onClear={clearSelections}
-        canClear={hasSelection}
+        onInvert={toggleSortDirection}
+        hasData={hasSelection}
         selectedTeams={selectedTeams}
         onToggleTeam={toggleTeam}
       />
