@@ -43,6 +43,7 @@ function Chart({ bars, onClear, onInvert, canClear, canInvert, selectedTeams, on
 
         <div className="relative mb-4 shrink-0">
           <h1 className="text-center text-2xl font-semibold tracking-tight">NBA 2025/26 Team Stat Trends</h1>
+          <h4 className="text-center font-semibold tracking-tight">(All Stats Per Game)</h4>
 
           <div className="absolute top-1/2 right-0 flex -translate-y-1/2 items-center gap-4">
             <button type="button" onClick={onInvert} disabled={!canInvert} className={headerButton}>
