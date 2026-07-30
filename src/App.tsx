@@ -26,6 +26,9 @@ function App() {
 
   const [selectedStat, setSelectedStat] = useState<Stat | null>(null)
   const [selectedGameRange, setSelectedGameRange] = useState<GameRangeSelection | null>(DEFAULT_RANGE)
+  //team keys the user has pinned by clicking a row — a Set because order is irrelevant and
+  //membership is the only question ever asked of it
+  const [selectedTeams, setSelectedTeams] = useState<Set<string>>(new Set())
   const [data, setData] = useState<StatsResponse | null>(null)
   //this shouldn't really ever error but good for debugging
   const [loadError, setLoadError] = useState(false)
@@ -73,9 +76,24 @@ function App() {
     setSelectedGameRange(range)
   }
 
+  //toggle one row's pin. a fresh Set every time — mutating the existing one keeps the same
+  //reference, and React would skip the re-render
+  const toggleTeam = (teamKey: string) => {
+    setSelectedTeams((pinned) => {
+      const next = new Set(pinned)
+      if (next.has(teamKey)) {
+        next.delete(teamKey)
+      } else {
+        next.add(teamKey)
+      }
+      return next
+    })
+  }
+
   const clearSelections = () => {
     setSelectedStat(null)
     setSelectedGameRange(null)
+    setSelectedTeams(new Set())
   }
 
   const hasSelection = selectedStat !== null || selectedGameRange !== null
@@ -83,7 +101,15 @@ function App() {
   const loadChart = () => {
     if (loadError) return <p className="text-ink-muted">Could not load data.json</p>
     if (!data) return <p className="text-ink-muted">Loading…</p>
-    return <Chart bars={teamBars} onClear={clearSelections} canClear={hasSelection} />
+    return (
+      <Chart
+        bars={teamBars}
+        onClear={clearSelections}
+        canClear={hasSelection}
+        selectedTeams={selectedTeams}
+        onToggleTeam={toggleTeam}
+      />
+    )
   }
 
   return (

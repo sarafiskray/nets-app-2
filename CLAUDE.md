@@ -139,17 +139,43 @@ weight. react-day-picker remains the calendar choice — this decision changes n
   numeric labels, no gridlines, no baseline. Values are permanently labeled at each bar's
   right edge, which makes axis numbers redundant. Fixed-quarter gridlines were tried and
   removed.
-- **NO hover/tooltip layer** (decided 2026-07-26): same reason — every value is always
-  visible. The planned hover step was deleted, not deferred.
+- **NO tooltip layer** (decided 2026-07-26): same reason — every value is always visible. The
+  planned tooltip step was deleted, not deferred.
+- **Row hover + click-to-pin** (added 2026-07-30, narrows the 2026-07-26 "no hover" rule).
+  Hovering anywhere on a row tints the whole row `bg-line/50` and shows a pointer cursor;
+  clicking pins it at full `bg-line`, and clicking again unpins. This is NOT the rejected
+  hover layer — it surfaces no data, it is an affordance plus a way to follow ONE team while
+  changing stats and ranges. Pins are keyed by TEAM KEY, so a pinned row keeps its highlight
+  as it glides to a new rank. Hover is dropped entirely while a row is pinned: applying both
+  would LIGHTEN a pinned row on hover, which reads as deselecting. Any number of rows may be
+  pinned; pinning all 30 is pointless but deliberately not blocked.
 - **Median divider:** a dashed `hardwood` rule between ranks 15 and 16.
 - **Chart panel fits the viewport** (`max-h calc(100dvh - page padding)`) and scrolls
   INTERNALLY with a hidden scrollbar (`scrollbar-hidden` utility in index.css); the page
   itself never scrolls, so both pill rails always stay in view.
+- **BOTH side rails get the same treatment** (added 2026-07-30) — each `<aside>` is a capped
+  flex column (`rail` / `railScroll` / `railHeading` consts in App.tsx): heading pinned via
+  `shrink-0`, pills scrolling beneath it. `min-h-0` on the scroll box is load-bearing — without
+  it a flex child will not shrink below its content height and the cap silently does nothing.
+  In the RANGE rail the scroll box wraps ONLY `RangePicker`, with the two custom pickers pinned
+  below it as a `shrink-0` sibling: a scroll container clips its own absolutely positioned
+  children, so putting the popovers inside it would cut their panels off. That also means the
+  preset list is the part that grows as presets are added.
 
 ## The render-time transform (this is the "massaging")
 
 Stored per-game JSON is NOT the chart's shape. Rebuild the chart array on every change of stat
-or range (useMemo keyed on `[stat, range]`). Per team:
+or range (useMemo keyed on `[stat, range]`).
+
+**`buildBars(teams, stat, range)` is the ONE entry point** (consolidated 2026-07-30). It takes
+both selections NULLABLE and returns the placeholder — 30 zero-value bars, sorted
+alphabetically — whenever either is missing; `transformData` and `placeholderBars` are private
+to the module. This is why a cleared chart and a freshly loaded one take the identical code
+path, and it is what makes `initial={false}` sufficient for "bars start at 0" (the zero is a
+DATA value, not a mount state). Note the guard is an OR: a stat with no range still renders the
+placeholder, which is why the range defaults to Full Season.
+
+Per team, when both are present:
 1. Pick the list — `teamGames` vs `opponentGames` — per the selected stat's mapping.
 2. Select the rows for the range. Two branches only (consolidated 2026-07-28):
    - `mode: 'numGames'` → `games.slice(startGame - 1, endGame)`. Game numbers are 1-based and
@@ -224,7 +250,16 @@ Three-zone layout, title centered at top (title TEXT is still TBD — use a plac
 - **Custom pickers commit explicitly** — a Go button, so the chart does not move while you are
   still choosing. Each picker keeps its draft in local state and only lifts committed values to
   App; both use the shared `GoButton` (actions) while `Pill` stays the selection primitive.
-- **Default view on load: 3PA Allowed + Last 10 games.**
+- **Default view on load: NO stat + Full Season** (changed 2026-07-30, supersedes "3PA Allowed
+  + Last 10"). Both selections are nullable and the stat starts null, so the chart opens on a
+  placeholder of 30 zero-width bars sorted alphabetically. The RANGE defaults to Full Season
+  (`DEFAULT_RANGE` in App.tsx) so a single stat click is enough to see data — without it,
+  `buildBars` returns the placeholder until BOTH are chosen and the stat rail looks dead.
+- **Clear button** (added 2026-07-30) — top right of the chart panel, a quiet text button
+  (not `Pill`, not `GoButton`; inline in Chart.tsx). Sets stat, range AND pinned rows back to
+  empty. It resets the range to NULL rather than to `DEFAULT_RANGE`, so after a Clear it takes
+  two clicks to see data again — owner's explicit choice, not an oversight. Disabled only when
+  nothing is selected, which given the default range means it is enabled from first render.
 - **Sort: always descending** (longest bar on top). A sort-direction toggle is a noted
   FUTURE idea, not v1.
 - **Desktop-first; NO custom responsive logic in v1.** Standard flexible sizing only; tablet
@@ -242,11 +277,12 @@ Three-zone layout, title centered at top (title TEXT is still TBD — use a plac
   systems, accessible palettes, axis/tooltip conventions. Directly relevant to the per-team
   color + contrast caveat.
 
-## Build status & sequencing (as of 2026-07-28)
+## Build status & sequencing (as of 2026-07-30)
 **All v1 functionality is built.** data job + data.json ✓ · Pill / StatPicker / RangePicker ✓ ·
 App state ✓ · data loading ✓ · transform-data.ts ✓ · Chart/Bar with median divider +
 viewport-fit scroll panel ✓ · Framer Motion layer ✓ · DatePicker (popover) ✓ ·
-GamePicker (custom 1–82 range) ✓.
+GamePicker (custom 1–82 range) ✓ · Clear button ✓ · row hover + click-to-pin ✓ ·
+both side rails viewport-capped and internally scrolling ✓.
 **Owner's sequencing decision: FUNCTIONAL work first, appearance second.** With function done,
 the remaining work is styling/design (see "Still open"). Temporary console.logs in App.tsx
 stay until final cleanup.
@@ -259,23 +295,47 @@ stay until final cleanup.
   custom pickers (extracted 2026-07-28 when GamePicker was converted to a popover for
   consistency with DatePicker). `isOpen` is CONTROLLED by the caller so `commit()` can close
   the panel; `isActive` fills the trigger; panel content is `children`.
+  **Panel is SIDE-anchored, not a dropdown** (settled 2026-07-30): `right-full … top-1/2
+  -translate-y-1/2`, so it sits LEFT of the rail over the chart, vertically centred on its
+  trigger. Reason: the rail hugs the right edge of a wide screen, so horizontal room is
+  plentiful and vertical room is scarce — and an absolutely positioned panel that overflows
+  the viewport is UNREACHABLE, because it does not extend the page's scroll height. Centring
+  means a tall panel needs only half its height of clearance each way. `max-h calc(100dvh -
+  page padding)` + `overflow-y-auto` on the panel is the actual guarantee: it can never exceed
+  the viewport, worst case it scrolls internally. `top-full` (dropdown) and `bottom-full`
+  (drop-up) were both tried and both clipped. A measure-and-flip approach and Floating UI were
+  considered and rejected — Floating UI portals the panel out of `containerRef`, which would
+  break the existing outside-click dismissal.
 - `StatPicker` / `RangePicker` — map their config table to Pills; fully controlled.
 - `DatePicker` — popover calendar; local `range` (draft, painted by the grid) + `committed`
   (what the trigger label shows). Separate on purpose: abandoned picks must not appear on the
   pill, and the union forgets dates when a preset is chosen.
 - `GamePicker` — two 1–82 inputs + GoButton; inputs held as STRINGS so a cleared box stays
   empty instead of snapping to 0. Blocks commit until both are whole numbers, in range, in order.
-- `Chart` / `Bar` — presentational; Chart owns `niceAxisMax`, Bar owns the motion + bar paint.
+- `Chart` / `Bar` — presentational; Chart owns `niceAxisMax` and the inline Clear button, Bar
+  owns the motion + bar paint + the row hover/pin highlight. Neither holds selection state:
+  the pinned-row `Set<string>` lives in App (so Clear can empty it) and arrives as
+  `selectedTeams` + `onToggleTeam`, which Chart passes straight through per row.
 
 ### Motion (built 2026-07-27)
 Two animations only, both in `Bar.tsx`, sharing one spring constant:
 - `layout` on the row → the vertical glide when ranks change (this is why bar color = team
   identity works; the bar travels rather than a fixed row changing color).
-- `animate={{ width }}` on the fill → the width morph. Deliberately NO `initial`, so nothing
-  grows from zero on mount.
+- `animate={{ width }}` on the fill → the width morph, with **`initial={false}`**.
+  `initial={false}` is LOAD-BEARING and the three states are not interchangeable (settled the
+  hard way, 2026-07-30):
+    - `initial={{ width: 0 }}` — correct on first paint, but it is a separate mount state that
+      REPLAYS, so bars visibly dropped to zero and grew back on every single click. This was
+      tried twice and reverted twice. Do not reintroduce it.
+    - no `initial` at all — Framer Motion paints the element's natural (full) width for one
+      frame before resolving the percentage target, so bars flash full-width then shrink.
+    - `initial={false}` — snaps straight to the animate target on the first frame. Bars still
+      start empty because the PLACEHOLDER's value is 0, i.e. the zero comes from the DATA, not
+      from mount timing. Nothing can replay it.
 An entrance cascade, hover lift, and value ticker were built and then REMOVED — the cascade's
 mount animation made re-sorts look buggy, and the owner cut the extras. Do not reintroduce
-them without being asked. Value crossfade was rejected in favor of instant swap because
+them without being asked. (The 2026-07-30 row hover is a flat background tint, not the
+rejected hover LIFT — no transform, no scale.) Value crossfade was rejected in favor of instant swap because
 different stats are unrelated quantities (Points → TO), so counting between them is meaningless.
 
 ## Still open
@@ -295,7 +355,8 @@ different stats are unrelated quantities (Points → TO), so counting between th
 - **Accessibility is explicitly OUT OF SCOPE** (owner, 2026-07-28): "this app does not need to
   be accessible." Do not add ARIA work or raise it as a finding.
 - Future ideas parked by the owner: sort-direction toggle. (Sticky side rails: SATISFIED —
-  the viewport-fit chart panel means the page never scrolls.)
+  as of 2026-07-30 both rails are viewport-capped and scroll internally, so no column can
+  outrun the chart and the page genuinely never scrolls.)
 
 ## Deployment (decided 2026-07-28, not yet executed)
 **Explicit deploys, not continuous** — the `gh-pages` package plus a `"deploy": "npm run build

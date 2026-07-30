@@ -11,9 +11,16 @@ const spring: Transition = { type: 'spring', stiffness: 170, damping: 26 }
 interface BarProps {
   bar: TeamBarData
   axisMax: number
+  //a pinned row — stays highlighted while the user changes stats, so one team is easy to follow
+  isSelected: boolean
+  onToggle: () => void
 }
 
-function Bar({ bar, axisMax }: BarProps) {
+function Bar({ bar, axisMax, isSelected, onToggle }: BarProps) {
+  //selection is the solid token, hover only half of it, so a pinned row always reads stronger
+  //than a passing one. hover is dropped entirely while selected — otherwise moving over a pinned
+  //row would lighten it, which looks like deselecting
+  const rowHighlight = isSelected ? 'bg-line' : 'hover:bg-line/50'
   //the "sheen × weave" bar treatment (V5 from the preview artifact).
   //sheen: solid primary melting diagonally into a primary/secondary blend at the leading end.
   //weave: fine diagonal threads of the TERTIARY color (22% strength) laid over the sheen.
@@ -32,7 +39,8 @@ function Bar({ bar, axisMax }: BarProps) {
     <motion.div
       layout
       transition={spring}
-      className="grid cursor-pointer grid-cols-[4rem_1fr_4.5rem] items-center gap-2 rounded-md transition-colors hover:bg-line/50"
+      onClick={onToggle}
+      className={`grid cursor-pointer grid-cols-[4rem_1fr_4.5rem] items-center gap-2 rounded-md transition-colors ${rowHighlight}`}
     >
 
       {/*

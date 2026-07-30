@@ -22,9 +22,12 @@ interface ChartProps {
   onClear: () => void
   //false before anything has been picked — there is nothing to clear yet
   canClear: boolean
+  //team keys whose rows are pinned highlighted; owned by App so Clear can empty it
+  selectedTeams: Set<string>
+  onToggleTeam: (teamKey: string) => void
 }
 
-function Chart({ bars, onClear, canClear: dataLoaded }: ChartProps) {
+function Chart({ bars, onClear, canClear: dataLoaded, selectedTeams, onToggleTeam }: ChartProps) {
 
   const axisMax = niceAxisMax(Math.max(...bars.map((bar) => bar.value)))
 
@@ -44,7 +47,12 @@ function Chart({ bars, onClear, canClear: dataLoaded }: ChartProps) {
         <div className="flex min-h-0 flex-col gap-2 overflow-y-auto">
           {bars.map((bar, index) => (
             <Fragment key={bar.key}>
-              <Bar bar={bar} axisMax={axisMax} />
+              <Bar
+                bar={bar}
+                axisMax={axisMax}
+                isSelected={selectedTeams.has(bar.key)}
+                onToggle={() => onToggleTeam(bar.key)}
+              />
               {index === 14 && <div className="border-t-2 border-dashed border-hardwood" />}
             </Fragment>
           ))}
