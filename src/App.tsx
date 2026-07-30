@@ -9,12 +9,15 @@ import { buildBars } from './transform-data'
 import { type Stat, type GameRangePreset } from './config'
 import type { GameRangeSelection, StatsResponse } from './types'
 
-//quiet helper text over each rail — deliberately recessive so the pills carry the eye
-const railHeading = 'mb-2 text-center text-xs font-semibold tracking-wider uppercase text-ink-muted'
+//styling for right and left railings
+//buttons should scroll, making it feel similar to the chart
+const railHeading =
+  'mb-2 shrink-0 text-center text-xs font-semibold tracking-wider uppercase text-ink-muted'
+const rail = 'flex w-44 shrink-0 flex-col max-h-[calc(100dvh-3rem)]'
+const railScroll = 'scrollbar-hidden min-h-0 overflow-y-auto'
 
 function App() {
 
-  //both start empty — nothing is charted until the user picks a stat AND a range
   const [selectedStat, setSelectedStat] = useState<Stat | null>(null)
   const [selectedGameRange, setSelectedGameRange] = useState<GameRangeSelection | null>(null)
   const [data, setData] = useState<StatsResponse | null>(null)
@@ -64,9 +67,6 @@ function App() {
     setSelectedGameRange(range)
   }
 
-  //back to null for both — the chart returns to the same placeholder it loaded with.
-  //the custom pickers keep their committed labels on purpose; only their fill clears,
-  //because that is derived from the range union
   const clearSelections = () => {
     setSelectedStat(null)
     setSelectedGameRange(null)
@@ -84,20 +84,29 @@ function App() {
   return (
     <div className="flex min-h-dvh bg-page p-6 text-ink">
 
-      <aside className="w-44 shrink-0">
+      <aside className={rail}>
         <h2 className={railHeading}>Select a Stat</h2>
-        <StatPicker selectedStat={selectedStat} onSelect={selectStat} />
+        <div className={railScroll}>
+          <StatPicker selectedStat={selectedStat} onSelect={selectStat} />
+        </div>
       </aside>
 
       <main className="flex-1 px-6">  
         {loadChart()}
       </main>
 
-      <aside className="w-44 shrink-0">
+      <aside className={rail}>
         <h2 className={railHeading}>Select a Game Range</h2>
-        <RangePicker selectedRange={selectedGameRange} onSelect={selectGameRange} />
-        <DatePicker selectedRange={selectedGameRange} onSelect={selectDateRange} />
-        <GamePicker selectedRange={selectedGameRange} onSelect={selectCustomGames} />
+
+        {/* only the presets scroll — they are the list that grows as presets are added */}
+        <div className={railScroll}>
+          <RangePicker selectedRange={selectedGameRange} onSelect={selectGameRange} />
+        </div>
+
+        <div className="shrink-0">
+          <DatePicker selectedRange={selectedGameRange} onSelect={selectDateRange} />
+          <GamePicker selectedRange={selectedGameRange} onSelect={selectCustomGames} />
+        </div>
       </aside>
 
     </div>

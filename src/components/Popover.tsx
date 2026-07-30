@@ -37,8 +37,11 @@ function Popover({ label, isActive, isOpen, onOpenChange, children }: PopoverPro
 
       <Pill label={label} color="red" isSelected={isActive} onSelect={() => onOpenChange(!isOpen)} />
 
+      {/*
+        popover opens to the left, to ensure its always on the screen
+      */}
       {isOpen && (
-        <div className="absolute right-0 top-full z-20 mt-2 flex flex-col gap-2 rounded-lg border border-line bg-surface p-3 shadow-xl">
+        <div className="absolute right-full top-1/2 z-20 mr-2 flex max-h-[calc(100dvh-3rem)] -translate-y-1/2 flex-col gap-2 overflow-y-auto rounded-lg border border-line bg-surface p-3 shadow-xl">
           {children}
         </div>
       )}
