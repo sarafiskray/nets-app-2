@@ -9,11 +9,11 @@ interface PopoverProps {
   children: ReactNode
 }
 
-//trigger pill + floating panel, shared by the custom date and game pickers
+//shared by the custom date and game pickers
 function Popover({ label, isActive, isOpen, onOpenChange, children }: PopoverProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
-  //dismiss on outside click or Escape, listeners only while open
+  //bunch of ways to escape
   useEffect(() => {
     if (!isOpen) return
 
@@ -30,6 +30,7 @@ function Popover({ label, isActive, isOpen, onOpenChange, children }: PopoverPro
       document.removeEventListener('mousedown', closeOnOutsideClick)
       document.removeEventListener('keydown', closeOnEscape)
     }
+
   }, [isOpen, onOpenChange])
 
   return (

@@ -156,7 +156,6 @@ async function main(): Promise<void> {
     teams: teams.map((team) => buildTeamEntry(team, allRows)),
   }
 
-  // Pretty-printed for debugging while in development; minify for production later.
   writeFileSync(OUTPUT_PATH, JSON.stringify(data, null, 2) + '\n')
   console.log(`Wrote ${data.teams.length} teams to ${OUTPUT_PATH}`)
 }

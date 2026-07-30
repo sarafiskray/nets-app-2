@@ -1,6 +1,6 @@
-import Pill from './Pill'
-import { GAME_RANGE_PRESETS, type GameRangePreset } from '../config'
-import type { GameRangeSelection } from '../types'
+import Pill from '../shared/Pill'
+import { GAME_RANGE_PRESETS, type GameRangePreset } from '../../config'
+import type { GameRangeSelection } from '../../types'
 
 interface RangePickerProps {
   //null until the user picks one

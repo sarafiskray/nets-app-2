@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import Popover from './Popover'
-import GoButton from './GoButton'
-import { GAMES_IN_SEASON } from '../config'
-import type { GameRangeSelection } from '../types'
+import Popover from '../shared/Popover'
+import GoButton from '../shared/GoButton'
+import { GAMES_IN_SEASON } from '../../config'
+import type { GameRangeSelection } from '../../types'
 
 interface GamePickerProps {
   //null until the user picks one
@@ -15,19 +15,19 @@ const inputStyles =
 
 function GamePicker({ selectedRange, onSelect }: GamePickerProps) {
   const [isOpen, setIsOpen] = useState(false)
-  //kept as strings so a half-typed box stays empty instead of snapping to 0
   const [start, setStart] = useState('')
   const [end, setEnd] = useState('')
-  //what the trigger shows — only Go writes it, so abandoned picks never reach the pill
+  //similar to date picker
   const [committed, setCommitted] = useState<{ startGame: number; endGame: number } | undefined>()
 
   const startGame = Number(start)
   const endGame = Number(end)
 
-  //a custom game range is numGames mode with no preset label
+  //kind of djank but works
+  //determine its active by determining we are in numGames mode and no preset label is selected
   const isActive = selectedRange?.mode === 'numGames' && selectedRange.label === undefined
 
-  //blocked until both boxes hold whole numbers inside 1-82, in order
+  //validate 1-82 input
   const isValid =
     start !== '' &&
     end !== '' &&
@@ -50,6 +50,7 @@ function GamePicker({ selectedRange, onSelect }: GamePickerProps) {
     <Popover label={label} isActive={isActive} isOpen={isOpen} onOpenChange={setIsOpen}>
 
       <div className="flex items-center gap-2">
+        
         <input
           type="number"
           value={start}

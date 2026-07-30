@@ -1,6 +1,6 @@
 import { motion } from 'motion/react'
 import type { Transition } from 'motion/react'
-import type { TeamBarData } from '../types'
+import type { TeamBarData } from '../../types'
 
 //one spring shared by every animation in this file.
 //stiffness = how hard it pulls toward the target (higher = faster).
@@ -32,8 +32,6 @@ function Bar({ bar, axisMax, isSelected, onToggle }: BarProps) {
       layout
       transition={spring}
       onClick={onToggle}
-      //every row carries the border at all times and only its COLOR changes — a border that
-      //appeared on selection would resize the row and shove every row below it
       className={`grid cursor-pointer grid-cols-[4rem_1fr_4.5rem] items-center gap-2 rounded-md border transition-colors ${rowHighlight}`}
     >
 

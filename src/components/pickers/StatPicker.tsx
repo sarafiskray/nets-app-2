@@ -1,5 +1,5 @@
-import Pill from './Pill'
-import { STATS, type Stat } from '../config'
+import Pill from '../shared/Pill'
+import { STATS, type Stat } from '../../config'
 
 interface StatPickerProps {
   //null until the user picks one

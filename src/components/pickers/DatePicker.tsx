@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { DayPicker } from 'react-day-picker'
 import type { DateRange } from 'react-day-picker'
 import 'react-day-picker/style.css'
-import Popover from './Popover'
-import GoButton from './GoButton'
-import { SEASON_START, SEASON_END } from '../config'
-import type { GameRangeSelection } from '../types'
+import Popover from '../shared/Popover'
+import GoButton from '../shared/GoButton'
+import { SEASON_START, SEASON_END } from '../../config'
+import type { GameRangeSelection } from '../../types'
 
 //helpers for dates
 function toDateString(date: Date): string {
