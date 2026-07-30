@@ -143,11 +143,16 @@ weight. react-day-picker remains the calendar choice — this decision changes n
   planned tooltip step was deleted, not deferred.
 - **Row hover + click-to-pin** (added 2026-07-30, narrows the 2026-07-26 "no hover" rule).
   Hovering anywhere on a row tints the whole row `bg-line/50` and shows a pointer cursor;
-  clicking pins it at full `bg-line`, and clicking again unpins. This is NOT the rejected
+  clicking pins it at full `bg-line` PLUS a `border-ink-muted` outline, and clicking again
+  unpins. This is NOT the rejected
   hover layer — it surfaces no data, it is an affordance plus a way to follow ONE team while
   changing stats and ranges. Pins are keyed by TEAM KEY, so a pinned row keeps its highlight
   as it glides to a new rank. Hover is dropped entirely while a row is pinned: applying both
-  would LIGHTEN a pinned row on hover, which reads as deselecting. Any number of rows may be
+  would LIGHTEN a pinned row on hover, which reads as deselecting. EVERY row carries the
+  border at all times and only its COLOR changes (`border-transparent` when unpinned) — a
+  border that appeared on selection would resize the row and shove every row below it, and
+  keeping it in the class list lets `transition-colors` fade it in for free. `border-hardwood`
+  was the considered alternative and is left as a commented line in Bar.tsx. Any number of rows may be
   pinned; pinning all 30 is pointless but deliberately not blocked.
 - **Median divider:** a dashed `hardwood` rule between ranks 15 and 16.
 - **Chart panel fits the viewport** (`max-h calc(100dvh - page padding)`) and scrolls
@@ -167,13 +172,17 @@ weight. react-day-picker remains the calendar choice — this decision changes n
 Stored per-game JSON is NOT the chart's shape. Rebuild the chart array on every change of stat
 or range (useMemo keyed on `[stat, range]`).
 
-**`buildBars(teams, stat, range)` is the ONE entry point** (consolidated 2026-07-30). It takes
-both selections NULLABLE and returns the placeholder — 30 zero-value bars, sorted
-alphabetically — whenever either is missing; `transformData` and `placeholderBars` are private
-to the module. This is why a cleared chart and a freshly loaded one take the identical code
-path, and it is what makes `initial={false}` sufficient for "bars start at 0" (the zero is a
-DATA value, not a mount state). Note the guard is an OR: a stat with no range still renders the
-placeholder, which is why the range defaults to Full Season.
+**`buildBars(teams, stat, range, sortAscending)` is the ONE entry point** (consolidated
+2026-07-30). It takes both selections NULLABLE and returns the placeholder — 30 zero-value
+bars, sorted alphabetically — whenever either is missing; `transformData` and `placeholderBars`
+are private to the module. This is why a cleared chart and a freshly loaded one take the
+identical code path, and it is what makes `initial={false}` sufficient for "bars start at 0"
+(the zero is a DATA value, not a mount state). Note the guard is an OR: a stat with no range
+still renders the placeholder, which is why the range defaults to Full Season.
+
+`sortAscending` reaches only `transformData` — `placeholderBars` is ALWAYS alphabetical
+regardless of direction (owner, 2026-07-30), because ascending/descending is about values and
+the placeholder has none.
 
 Per team, when both are present:
 1. Pick the list — `teamGames` vs `opponentGames` — per the selected stat's mapping.
@@ -255,13 +264,28 @@ Three-zone layout, title centered at top (title TEXT is still TBD — use a plac
   placeholder of 30 zero-width bars sorted alphabetically. The RANGE defaults to Full Season
   (`DEFAULT_RANGE` in App.tsx) so a single stat click is enough to see data — without it,
   `buildBars` returns the placeholder until BOTH are chosen and the stat rail looks dead.
-- **Clear button** (added 2026-07-30) — top right of the chart panel, a quiet text button
-  (not `Pill`, not `GoButton`; inline in Chart.tsx). Sets stat, range AND pinned rows back to
-  empty. It resets the range to NULL rather than to `DEFAULT_RANGE`, so after a Clear it takes
-  two clicks to see data again — owner's explicit choice, not an oversight. Disabled only when
-  nothing is selected, which given the default range means it is enabled from first render.
-- **Sort: always descending** (longest bar on top). A sort-direction toggle is a noted
-  FUTURE idea, not v1.
+- **Chart header** (finished 2026-07-30) — one row above the scroll area holding the page title
+  and the two actions. Title `NBA 2025/26 Team Stat Trends` with the subtitle
+  `(All Stats Per Game)` beneath it, both CENTRED; the Invert and Clear buttons are pulled out
+  of flow (`absolute right-0 top-1/2 -translate-y-1/2`) and pinned right. Structural reason:
+  the title stays a normal centred block so it centres on the PANEL rather than on the space
+  left beside the buttons, and so it still sets the header's height — absolutely positioning
+  the TITLE instead would collapse the header to the buttons' height and spill the title over
+  the chart.
+- **Invert + Clear** (added 2026-07-30) — both quiet text buttons sharing the `headerButton`
+  class string in Chart.tsx (not `Pill`, not `GoButton`). Invert sits to the LEFT of Clear.
+  - **Clear** sets stat, range, pinned rows AND sort direction back to empty/descending. It
+    resets the range to NULL rather than to `DEFAULT_RANGE`, so after a Clear it takes two
+    clicks to see data again — owner's explicit choice, not an oversight.
+  - **Invert** flips the value sort. The direction is a STANDING preference (`isAscending` in
+    App), not per-stat: once inverted, every stat and range stays ascending until inverted back.
+  - **Their enabled conditions differ ON PURPOSE** (owner, 2026-07-30) — do not collapse them
+    back into one flag. Clear takes `canClear` = stat OR range (something to reset); Invert
+    takes `canInvert` = stat AND range (real values to re-sort). Because the range defaults to
+    Full Season, an OR gate is true from the first render, which left Invert clickable on load
+    as a silent no-op — the placeholder is alphabetical either way. Hence the AND.
+- **Sort: descending by default** (longest bar on top), flipped by Invert. Direction lives in
+  App and is passed down to `buildBars`, never decided inside the transform.
 - **Desktop-first; NO custom responsive logic in v1.** Standard flexible sizing only; tablet
   working is a bonus, phones are out of scope.
 
@@ -282,10 +306,11 @@ Three-zone layout, title centered at top (title TEXT is still TBD — use a plac
 App state ✓ · data loading ✓ · transform-data.ts ✓ · Chart/Bar with median divider +
 viewport-fit scroll panel ✓ · Framer Motion layer ✓ · DatePicker (popover) ✓ ·
 GamePicker (custom 1–82 range) ✓ · Clear button ✓ · row hover + click-to-pin ✓ ·
-both side rails viewport-capped and internally scrolling ✓.
-**Owner's sequencing decision: FUNCTIONAL work first, appearance second.** With function done,
-the remaining work is styling/design (see "Still open"). Temporary console.logs in App.tsx
-stay until final cleanup.
+both side rails viewport-capped and internally scrolling ✓ · Invert (sort direction) ✓ ·
+page title + subtitle ✓.
+**FUNCTIONAL WORK IS COMPLETE** (owner, 2026-07-30: "this will be my last functional change").
+Do not add features. What remains is cleanup and deploy — see "Still open".
+Temporary console.logs in App.tsx stay until final cleanup.
 
 ### Component inventory
 - `Pill` — the selection primitive (stat rail, range rail, popover triggers). `aria-pressed`.
@@ -312,10 +337,11 @@ stay until final cleanup.
   pill, and the union forgets dates when a preset is chosen.
 - `GamePicker` — two 1–82 inputs + GoButton; inputs held as STRINGS so a cleared box stays
   empty instead of snapping to 0. Blocks commit until both are whole numbers, in range, in order.
-- `Chart` / `Bar` — presentational; Chart owns `niceAxisMax` and the inline Clear button, Bar
-  owns the motion + bar paint + the row hover/pin highlight. Neither holds selection state:
-  the pinned-row `Set<string>` lives in App (so Clear can empty it) and arrives as
-  `selectedTeams` + `onToggleTeam`, which Chart passes straight through per row.
+- `Chart` / `Bar` — presentational; Chart owns `niceAxisMax`, the header (title + Invert +
+  Clear) and the median divider, Bar owns the motion + bar paint + the row hover/pin highlight.
+  Neither holds ANY state: the pinned-row `Set<string>` and the sort direction both live in App
+  and arrive as props (`selectedTeams` / `onToggleTeam`, `canInvert` / `onInvert`), which Chart
+  passes straight through. Sorting itself happens in transform-data, never in Chart.
 
 ### Motion (built 2026-07-27)
 Two animations only, both in `Bar.tsx`, sharing one spring constant:
@@ -339,7 +365,13 @@ rejected hover LIFT — no transform, no scale.) Value crossfade was rejected in
 different stats are unrelated quantities (Points → TO), so counting between them is meaningless.
 
 ## Still open
-- **Page title text** — owner will supply; build with a placeholder until then.
+- **Page title — SETTLED 2026-07-30.** `NBA 2025/26 Team Stat Trends`, with the subtitle
+  `(All Stats Per Game)` beneath it. No longer a placeholder.
+- **Known cleanup, all reviewed and consciously left by the owner** (raised 2026-07-30):
+  temporary `console.log`s in App.tsx (one fires on EVERY render); `scrollbar-hidden` is
+  missing from the chart's scroll container, so that panel shows a scrollbar while the rails
+  do not; the disabled Clear/Invert tint is `text-line` on `bg-surface`, ~1.4:1 contrast, so
+  disabled buttons are close to invisible.
 - **GitHub Pages deploy** — deliberately deferred until the front end is in a better state.
   Single deploy of the whole Vite build (data.json ships inside `public/` → `dist/`).
 - **data.json minification** — pretty-printed for development debugging; consider minifying
@@ -354,9 +386,9 @@ different stats are unrelated quantities (Points → TO), so counting between th
   source of truth.
 - **Accessibility is explicitly OUT OF SCOPE** (owner, 2026-07-28): "this app does not need to
   be accessible." Do not add ARIA work or raise it as a finding.
-- Future ideas parked by the owner: sort-direction toggle. (Sticky side rails: SATISFIED —
-  as of 2026-07-30 both rails are viewport-capped and scroll internally, so no column can
-  outrun the chart and the page genuinely never scrolls.)
+- Both previously parked ideas are now SATISFIED: sort-direction toggle shipped 2026-07-30 as
+  the Invert button; sticky side rails shipped the same day as the viewport-capped, internally
+  scrolling rails, so no column can outrun the chart and the page genuinely never scrolls.
 
 ## Deployment (decided 2026-07-28, not yet executed)
 **Explicit deploys, not continuous** — the `gh-pages` package plus a `"deploy": "npm run build
