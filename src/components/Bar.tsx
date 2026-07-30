@@ -17,18 +17,10 @@ interface BarProps {
 }
 
 function Bar({ bar, axisMax, isSelected, onToggle }: BarProps) {
-  //selection is the solid token, hover only half of it, so a pinned row always reads stronger
-  //than a passing one. hover is dropped entirely while selected — otherwise moving over a pinned
-  //row would lighten it, which looks like deselecting
-  const rowHighlight = isSelected ? 'bg-line' : 'hover:bg-line/50'
-  //the "sheen × weave" bar treatment (V5 from the preview artifact).
-  //sheen: solid primary melting diagonally into a primary/secondary blend at the leading end.
-  //weave: fine diagonal threads of the TERTIARY color (22% strength) laid over the sheen.
-  //115° leans both patterns toward the bar's growing end — the movement suggestion.
-  //the left end starts slightly LIGHTENED (14% white) so dark primaries don't read as a heavy slab
+
+  const rowHighlight = isSelected ? 'bg-line border-ink-muted' : 'hover:bg-line/50 border-transparent'
   const sheen = `linear-gradient(115deg, color-mix(in srgb, ${bar.color1} 86%, white) 0%, ${bar.color1} 45%, color-mix(in srgb, ${bar.color1} 55%, ${bar.color2}) 100%)`
   const weave = `repeating-linear-gradient(115deg, color-mix(in srgb, ${bar.color3} 22%, transparent) 0px, color-mix(in srgb, ${bar.color3} 22%, transparent) 1.5px, transparent 1.5px, transparent 7px)`
-  //border: the team's own primary darkened ~28% — crisp edge against the cream panel for all 30 teams
   const border = `1.5px solid color-mix(in srgb, ${bar.color1} 78%, black)`
 
   return (
@@ -40,7 +32,9 @@ function Bar({ bar, axisMax, isSelected, onToggle }: BarProps) {
       layout
       transition={spring}
       onClick={onToggle}
-      className={`grid cursor-pointer grid-cols-[4rem_1fr_4.5rem] items-center gap-2 rounded-md transition-colors ${rowHighlight}`}
+      //every row carries the border at all times and only its COLOR changes — a border that
+      //appeared on selection would resize the row and shove every row below it
+      className={`grid cursor-pointer grid-cols-[4rem_1fr_4.5rem] items-center gap-2 rounded-md border transition-colors ${rowHighlight}`}
     >
 
       {/*
