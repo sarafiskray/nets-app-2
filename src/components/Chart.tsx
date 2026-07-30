@@ -22,14 +22,17 @@ interface ChartProps {
   
   //flips the sort order
   onInvert: () => void
-  //is any stat or game range selected
-  hasData: boolean
+  //is EITHER a stat or a game range selected — there is something to reset
+  canClear: boolean
+  //are BOTH selected — only then is there real data to re-sort. the placeholder is always
+  //alphabetical, so inverting it would be a silent no-op
+  canInvert: boolean
   //rows that have been clicked
   selectedTeams: Set<string>
   onToggleTeam: (teamKey: string) => void
 }
 
-function Chart({ bars, onClear, onInvert, hasData: hasSelection, selectedTeams, onToggleTeam }: ChartProps) {
+function Chart({ bars, onClear, onInvert, canClear, canInvert, selectedTeams, onToggleTeam }: ChartProps) {
 
   const axisMax = niceAxisMax(Math.max(...bars.map((bar) => bar.value)))
 
@@ -42,10 +45,10 @@ function Chart({ bars, onClear, onInvert, hasData: hasSelection, selectedTeams, 
           <h1 className="text-center text-2xl font-semibold tracking-tight">NBA 2025/26 Team Stat Trends</h1>
 
           <div className="absolute top-1/2 right-0 flex -translate-y-1/2 items-center gap-4">
-            <button type="button" onClick={onInvert} disabled={!hasSelection} className={headerButton}>
+            <button type="button" onClick={onInvert} disabled={!canInvert} className={headerButton}>
               Invert
             </button>
-            <button type="button" onClick={onClear} disabled={!hasSelection} className={headerButton}>
+            <button type="button" onClick={onClear} disabled={!canClear} className={headerButton}>
               Clear
             </button>
           </div>

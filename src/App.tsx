@@ -96,7 +96,10 @@ function App() {
     setIsAscending(false)
   }
 
+  //user should be able to clear a single selection
   const hasSelection = selectedStat !== null || selectedGameRange !== null
+  //invert button should only work when there is data on the chart
+  const isCharting = selectedStat !== null && selectedGameRange !== null
 
   const loadChart = () => {
     if (loadError) return <p className="text-ink-muted">Could not load data.json</p>
@@ -106,7 +109,8 @@ function App() {
         bars={teamBars}
         onClear={clearSelections}
         onInvert={toggleSortDirection}
-        hasData={hasSelection}
+        canClear={hasSelection}
+        canInvert={isCharting}
         selectedTeams={selectedTeams}
         onToggleTeam={toggleTeam}
       />
