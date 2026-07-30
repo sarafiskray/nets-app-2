@@ -24,7 +24,8 @@ function isCompleteRange(range: DateRange | undefined): range is { from: Date; t
 //
 
 interface DatePickerProps {
-  selectedRange: GameRangeSelection
+  //null until the user picks one
+  selectedRange: GameRangeSelection | null
   onSelect: (from: string, to: string) => void
 }
 
@@ -37,7 +38,7 @@ function DatePicker({ selectedRange, onSelect }: DatePickerProps) {
   const [committed, setCommitted] = useState<DateRange | undefined>()
 
   //is date mode being used
-  const isActive = selectedRange.mode === 'dates'
+  const isActive = selectedRange?.mode === 'dates'
   //are both dates selected
   const isComplete = isCompleteRange(range)
 

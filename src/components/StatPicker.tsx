@@ -2,7 +2,8 @@ import Pill from './Pill'
 import { STATS, type Stat } from '../config'
 
 interface StatPickerProps {
-  selectedStat: Stat
+  //null until the user picks one
+  selectedStat: Stat | null
   onSelect: (stat: Stat) => void
 }
 

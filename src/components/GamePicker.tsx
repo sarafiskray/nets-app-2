@@ -5,7 +5,8 @@ import { GAMES_IN_SEASON } from '../config'
 import type { GameRangeSelection } from '../types'
 
 interface GamePickerProps {
-  selectedRange: GameRangeSelection
+  //null until the user picks one
+  selectedRange: GameRangeSelection | null
   onSelect: (startGame: number, endGame: number) => void
 }
 
@@ -24,7 +25,7 @@ function GamePicker({ selectedRange, onSelect }: GamePickerProps) {
   const endGame = Number(end)
 
   //a custom game range is numGames mode with no preset label
-  const isActive = selectedRange.mode === 'numGames' && selectedRange.label === undefined
+  const isActive = selectedRange?.mode === 'numGames' && selectedRange.label === undefined
 
   //blocked until both boxes hold whole numbers inside 1-82, in order
   const isValid =

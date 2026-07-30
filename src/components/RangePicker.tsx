@@ -3,7 +3,8 @@ import { GAME_RANGE_PRESETS, type GameRangePreset } from '../config'
 import type { GameRangeSelection } from '../types'
 
 interface RangePickerProps {
-  selectedRange: GameRangeSelection
+  //null until the user picks one
+  selectedRange: GameRangeSelection | null
   onSelect: (preset: GameRangePreset) => void
 }
 
@@ -15,7 +16,7 @@ function RangePicker({ selectedRange, onSelect }: RangePickerProps) {
           key={preset.label}
           label={preset.label}
           color="red"
-          isSelected={selectedRange.mode === 'numGames' && selectedRange.label === preset.label}
+          isSelected={selectedRange?.mode === 'numGames' && selectedRange.label === preset.label}
           onSelect={() => onSelect(preset)}
         />
       ))}
