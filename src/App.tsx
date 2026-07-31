@@ -143,13 +143,12 @@ function App() {
             onSelectGames={selectGameRange}
             onSelectDates={selectDatePreset}
           />
+        </div>
+
+        <div className="shrink-0">
           <DatePicker selectedRange={selectedGameRange} onSelect={selectDateRange} />
           <GamePicker selectedRange={selectedGameRange} onSelect={selectCustomGames} />
         </div>
-{/* 
-        <div className="shrink-0">
-
-        </div> */}
       </aside>
 
     </div>
