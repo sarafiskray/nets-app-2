@@ -19,7 +19,7 @@ interface RangePickerProps {
 function RangePicker({ selectedRange, onSelectGames, onSelectDates }: RangePickerProps) {
   return (
     <div className="flex flex-col gap-2">
-      /
+      
       {GAME_RANGE_PRESETS.map((preset) => (
         <Pill
           key={preset.label}
