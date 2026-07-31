@@ -20,7 +20,7 @@ const DEFAULT_RANGE: GameRangeSelection = {
 const railHeading =
   'mb-2 shrink-0 text-center text-xs font-semibold tracking-wider uppercase text-ink-muted'
 const rail = 'flex w-44 shrink-0 flex-col max-h-[calc(100dvh-3rem)]'
-const railScroll = 'scrollbar-hidden min-h-0 overflow-y-auto'
+const railScroll = 'min-h-0 overflow-y-auto'
 
 function App() {
 
@@ -137,12 +137,13 @@ function App() {
         {/* only the presets scroll — they are the list that grows as presets are added */}
         <div className={railScroll}>
           <RangePicker selectedRange={selectedGameRange} onSelect={selectGameRange} />
-        </div>
-
-        <div className="shrink-0">
           <DatePicker selectedRange={selectedGameRange} onSelect={selectDateRange} />
           <GamePicker selectedRange={selectedGameRange} onSelect={selectCustomGames} />
         </div>
+{/* 
+        <div className="shrink-0">
+
+        </div> */}
       </aside>
 
     </div>
