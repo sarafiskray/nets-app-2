@@ -40,10 +40,12 @@ export const GAME_RANGE_PRESETS = [
   { label: 'Last 5', startGame: 78, endGame: 82 },
   { label: 'Last 10', startGame: 73, endGame: 82 },
   { label: 'Last 25', startGame: 58, endGame: 82 },
-  { label: 'Full Season', startGame: 1, endGame: 82 },
   { label: 'First 5', startGame: 1, endGame: 5 },
   { label: 'First 10', startGame: 1, endGame: 10 },
   { label: 'First 25', startGame: 1, endGame: 25 },
+  { label: 'First Half', startGame: 1, endGame: 41 },
+  { label: 'Second Half', startGame: 42, endGame: 82 },
+   { label: 'Full Season', startGame: 1, endGame: 82 }
 ] as const satisfies readonly GameRangeButtonConfig[]
 
 export type GameRangePreset = (typeof GAME_RANGE_PRESETS)[number]
