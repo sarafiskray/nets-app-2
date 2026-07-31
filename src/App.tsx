@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import './App.css'
 import StatPicker from './components/pickers/StatPicker'
 import RangePicker from './components/pickers/RangePicker'
 import DatePicker from './components/pickers/DatePicker'
@@ -48,25 +47,25 @@ function App() {
   )
 
   const selectStat = (stat: Stat) => {
-     console.log('selectedStat →', stat)
+  //   console.log('selectedStat →', stat)
     setSelectedStat(stat)
   }
 
   const selectGameRange = (preset: GameRangePreset) => {
     const range: GameRangeSelection = { mode: 'numGames', ...preset }
-     console.log('selectedRange →', range)
+  //   console.log('selectedRange →', range)
     setSelectedGameRange(range)
   }
 
   const selectCustomGames = (startGame: number, endGame: number) => {
     const range: GameRangeSelection = { mode: 'numGames', startGame, endGame }
-     console.log('selectedRange →', range)
+  //   console.log('selectedRange →', range)
     setSelectedGameRange(range)
   }
 
   const selectDateRange = (from: string, to: string) => {
     const range: GameRangeSelection = { mode: 'dates', from, to }
-     console.log('selectedRange →', range)
+   //  console.log('selectedRange →', range)
     setSelectedGameRange(range)
   }
 
@@ -134,7 +133,7 @@ function App() {
         {loadChart()}
       </main>
 
-      <aside className={rail}>
+      <aside className={rail}>  
         <h2 className={railHeading}>Select a Game Range</h2>
 
         {/* only the presets scroll — they are the list that grows as presets are added */}

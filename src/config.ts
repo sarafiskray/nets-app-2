@@ -9,8 +9,6 @@ export interface StatConfig {
 }
 
 //label is the identifier
-//i considered adding a numeric id, and i may do so down the line
-//don't love passing around strings but felt ok for the scope of this project
 export const STATS = [
   { label: 'Points', view: 'teamGames', fieldName: 'points' },
   { label: 'Assists', view: 'teamGames', fieldName: 'assists' },

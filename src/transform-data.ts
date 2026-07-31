@@ -71,7 +71,7 @@ function roundToTenth(value: number): number {
   return Math.round(value * 10) / 10
 }
 
-//strange TS type casting
+//this is necessary for TS type casting, because we are keying by string labels
 function getStatValue(game: Game, fieldName: string): number {
   return (game as unknown as Record<string, number>)[fieldName]
 }
