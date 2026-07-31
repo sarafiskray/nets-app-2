@@ -56,5 +56,18 @@ export const GAME_RANGE_PRESETS = [
 
 export type GameRangePreset = (typeof GAME_RANGE_PRESETS)[number]
 
+export interface DateRangeButtonConfig {
+  label: string
+  from: string
+  to: string
+}
+
+export const DATE_RANGE_PRESETS = [
+  { label: 'Pre All-Star', from: '2025-10-21', to: '2026-02-15' },
+  { label: 'Post All-Star', from: '2026-02-15', to: '2026-04-12' },
+] as const satisfies readonly DateRangeButtonConfig[]
+
+export type DateRangePreset = (typeof DATE_RANGE_PRESETS)[number]
+
 export const SEASON_START = new Date(2025, 9, 21)
 export const SEASON_END = new Date(2026, 3, 12)

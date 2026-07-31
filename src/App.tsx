@@ -6,7 +6,7 @@ import DatePicker from './components/pickers/DatePicker'
 import GamePicker from './components/pickers/GamePicker'
 import Chart from './components/barchart/Chart'
 import { buildBars } from './transform-data'
-import { GAME_RANGE_PRESETS, type Stat, type GameRangePreset } from './config'
+import { GAME_RANGE_PRESETS, type Stat, type GameRangePreset, type DateRangePreset } from './config'
 import type { GameRangeSelection, StatsResponse } from './types'
 
 //default to full season, so that users can see data with a single click
@@ -47,9 +47,6 @@ function App() {
     [data, selectedStat, selectedGameRange, isAscending],
   )
 
-  //temporary, to verify the transform output
-  console.log('teamBars →', teamBars)
-
   const selectStat = (stat: Stat) => {
      console.log('selectedStat →', stat)
     setSelectedStat(stat)
@@ -69,6 +66,12 @@ function App() {
 
   const selectDateRange = (from: string, to: string) => {
     const range: GameRangeSelection = { mode: 'dates', from, to }
+     console.log('selectedRange →', range)
+    setSelectedGameRange(range)
+  }
+
+  const selectDatePreset = (preset: DateRangePreset) => {
+    const range: GameRangeSelection = { mode: 'dates', ...preset }
      console.log('selectedRange →', range)
     setSelectedGameRange(range)
   }
@@ -136,7 +139,11 @@ function App() {
 
         {/* only the presets scroll — they are the list that grows as presets are added */}
         <div className={railScroll}>
-          <RangePicker selectedRange={selectedGameRange} onSelect={selectGameRange} />
+          <RangePicker
+            selectedRange={selectedGameRange}
+            onSelectGames={selectGameRange}
+            onSelectDates={selectDatePreset}
+          />
           <DatePicker selectedRange={selectedGameRange} onSelect={selectDateRange} />
           <GamePicker selectedRange={selectedGameRange} onSelect={selectCustomGames} />
         </div>

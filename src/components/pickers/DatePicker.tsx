@@ -37,8 +37,7 @@ function DatePicker({ selectedRange, onSelect }: DatePickerProps) {
   //this is the range actually committed and shown on the Pill
   const [committed, setCommitted] = useState<DateRange | undefined>()
 
-  //is date mode being used
-  const isActive = selectedRange?.mode === 'dates'
+  const isActive = selectedRange?.mode === 'dates' && !selectedRange.label
   //are both dates selected
   const isComplete = isCompleteRange(range)
 
