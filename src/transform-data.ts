@@ -1,4 +1,4 @@
-import { STATS, type Stat } from './config'
+import { STATS, type Stat, type StatConfig } from './config'
 import type { GameRangeSelection, OpponentGame, Team, TeamBarData, TeamGame } from './types'
 
 //for this case, a game can be a TeamGame or an OpponentGame
@@ -14,8 +14,8 @@ function transformData(teams: Team[], selectedStat: Stat, selectedGameRange: Gam
   const statConfig = STATS.find((s) => s.label === selectedStat)!
 
   const bars = teams.map((team) =>
-    //the average of the selected stat over the selected games
-    toBar(team, calculateAverage(selectGames(team[statConfig.view], selectedGameRange), statConfig.fieldName)),
+    //the selected stat over the selected games
+    toBar(team, calculateValue(selectGames(team[statConfig.view], selectedGameRange), statConfig)),
   )
 
   //respect sortAscending flag
@@ -43,18 +43,32 @@ function selectGames(games: readonly Game[], range: GameRangeSelection): readonl
   if (range.mode === 'dates') {
     return games.filter((game) => game.date >= range.from && game.date <= range.to)
   }
-  //presets and the custom game picker both land here — game numbers are 1-based
-  //and inclusive, slice is 0-based and exclusive
+  //pick games by game number
   return games.slice(range.startGame - 1, range.endGame)
 }
 
-function calculateAverage(games: readonly Game[], fieldName: string): number {
+//every stat is a sum over a denominator — only the denominator differs
+function calculateValue(games: readonly Game[], statConfig: StatConfig): number {
   //return 0 if didnt play in selected calendar period
   if (games.length === 0) return 0
 
-  //round to tenth
-  const total = games.reduce((sum, game) => sum + getStatValue(game, fieldName), 0)
-  return Math.round((total / games.length) * 10) / 10
+  const total = sumField(games, statConfig.fieldName)
+
+  //calculate percentage
+  if (statConfig.percentOf) {
+    const attempted = sumField(games, statConfig.percentOf)
+    return attempted === 0 ? 0 : roundToTenth((total / attempted) * 100)
+  }
+
+  return roundToTenth(total / games.length)
+}
+
+function sumField(games: readonly Game[], fieldName: string): number {
+  return games.reduce((sum, game) => sum + getStatValue(game, fieldName), 0)
+}
+
+function roundToTenth(value: number): number {
+  return Math.round(value * 10) / 10
 }
 
 //strange TS type casting

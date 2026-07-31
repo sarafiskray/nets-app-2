@@ -26,6 +26,8 @@ interface SdioGame {
   Opponent: string 
   Day: string
   Points: number
+  FieldGoalsMade: number
+  FieldGoalsAttempted: number
   ThreePointersMade: number
   ThreePointersAttempted: number
   Turnovers: number
@@ -84,6 +86,8 @@ function toTeamGameRecord(row: SdioGame): TeamGame {
     teamId: row.TeamID,
     teamKey: row.Team,
     points: row.Points,
+    fieldGoalsMade: row.FieldGoalsMade,
+    fieldGoalsAttempted: row.FieldGoalsAttempted,
     threePointersMade: row.ThreePointersMade,
     threePointersAttempted: row.ThreePointersAttempted,
     turnovers: row.Turnovers,
@@ -103,6 +107,8 @@ function toOpponentGameRecord(row: SdioGame): OpponentGame {
     teamId: row.OpponentID,
     teamKey: row.Opponent,
     points: row.Points,
+    fieldGoalsMade: row.FieldGoalsMade,
+    fieldGoalsAttempted: row.FieldGoalsAttempted,
     threePointersMade: row.ThreePointersMade,
     threePointersAttempted: row.ThreePointersAttempted,
     freeThrowsAttempted: row.FreeThrowsAttempted,

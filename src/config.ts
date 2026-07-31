@@ -4,6 +4,8 @@ export interface StatConfig {
   label: string
   view: StatView
   fieldName: string
+  //present only on percentages — fieldName is then the numerator (the "made" field)
+  percentOf?: string
 }
 
 //label is the identifier
@@ -11,19 +13,23 @@ export interface StatConfig {
 //don't love passing around strings but felt ok for the scope of this project
 export const STATS = [
   { label: 'Points', view: 'teamGames', fieldName: 'points' },
-  { label: 'Points Allowed', view: 'opponentGames', fieldName: 'points' },
+  { label: 'Assists', view: 'teamGames', fieldName: 'assists' },
+  { label: 'FG%', view: 'teamGames', fieldName: 'fieldGoalsMade', percentOf: 'fieldGoalsAttempted' },
   { label: '3PM', view: 'teamGames', fieldName: 'threePointersMade' },
-  { label: '3PM Allowed', view: 'opponentGames', fieldName: 'threePointersMade' },
   { label: '3PA', view: 'teamGames', fieldName: 'threePointersAttempted' },
-  { label: '3PA Allowed', view: 'opponentGames', fieldName: 'threePointersAttempted' },
+  { label: '3P%', view: 'teamGames', fieldName: 'threePointersMade', percentOf: 'threePointersAttempted' },
+  { label: 'OREB', view: 'teamGames', fieldName: 'offensiveRebounds' },
   { label: 'TO', view: 'teamGames', fieldName: 'turnovers' },
   { label: 'Stocks', view: 'teamGames', fieldName: 'stocks' },
   { label: 'Fouls', view: 'teamGames', fieldName: 'personalFouls' },
   { label: 'FTA', view: 'teamGames', fieldName: 'freeThrowsAttempted' },
-  { label: 'FTA Allowed', view: 'opponentGames', fieldName: 'freeThrowsAttempted' },
-  { label: 'OREB', view: 'teamGames', fieldName: 'offensiveRebounds' },
+  { label: 'Points Allowed', view: 'opponentGames', fieldName: 'points' },
+  { label: 'FG% Allowed', view: 'opponentGames', fieldName: 'fieldGoalsMade', percentOf: 'fieldGoalsAttempted' },
+  { label: '3PM Allowed', view: 'opponentGames', fieldName: 'threePointersMade' },
+  { label: '3PA Allowed', view: 'opponentGames', fieldName: 'threePointersAttempted' },
+  { label: '3P% Allowed', view: 'opponentGames', fieldName: 'threePointersMade', percentOf: 'threePointersAttempted' },
   { label: 'OREB Allowed', view: 'opponentGames', fieldName: 'offensiveRebounds' },
-  { label: 'Assists', view: 'teamGames', fieldName: 'assists' },
+  { label: 'FTA Allowed', view: 'opponentGames', fieldName: 'freeThrowsAttempted' }
 ] as const satisfies readonly StatConfig[]
 
 export type Stat = (typeof STATS)[number]['label']

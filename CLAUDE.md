@@ -58,37 +58,56 @@ Records are **TRIMMED to only the fields the chart uses** — not the full API p
   numbers they are — while the stat values are what the opponent did to them. The build
   script reads the key from the row's `Team` field for teamGames and `Opponent` field for
   opponentGames.)
-- **TeamGame stat fields (9):** `points`, `threePointersMade`, `threePointersAttempted`,
-  `turnovers`, `stocks`, `personalFouls`, `freeThrowsAttempted`, `offensiveRebounds`, `assists`.
-- **OpponentGame stat fields (5 — the "Allowed" stats only):** `points`, `threePointersMade`,
-  `threePointersAttempted`, `freeThrowsAttempted`, `offensiveRebounds`. (No `stocks` — not an
-  Allowed stat.)
+- **TeamGame stat fields (11):** `points`, `fieldGoalsMade`, `fieldGoalsAttempted`,
+  `threePointersMade`, `threePointersAttempted`, `turnovers`, `stocks`, `personalFouls`,
+  `freeThrowsAttempted`, `offensiveRebounds`, `assists`.
+- **OpponentGame stat fields (7 — the "Opp" stats only):** `points`, `fieldGoalsMade`,
+  `fieldGoalsAttempted`, `threePointersMade`, `threePointersAttempted`, `freeThrowsAttempted`,
+  `offensiveRebounds`. (No `stocks` — not an opponent stat.)
+- **`fieldGoalsMade`/`fieldGoalsAttempted` were added 2026-07-30** for FG% / Opp FG%; they are
+  stored raw, never as a precomputed percentage, because the ratio must be taken over the
+  whole selected range.
 - **`stocks` is PRECOMPUTED** = Steals + BlockedShots, stored as one field (TeamGame only).
 - **Team color** stored ONCE at the team level (next to `key`), not per row.
 - Sort each list by `date`. NBA teams never play twice in one day, so date alone is a total
   ordering — "last X" is a simple slice, no GameID tiebreaker needed.
 
-### The 14 selectable stats (all counting stats → sum cleanly over last-X; no % recompute issues)
-| Stat | API field | View (list) |
+### The 18 selectable stats (source of truth = `STATS` in src/config.ts)
+14 counting stats + 4 percentages, in rail order:
+
+| Stat | API field(s) | View (list) |
 |---|---|---|
 | Points | `Points` | teamGame |
-| Points Allowed | `Points` | opponentGame |
+| Opp Points | `Points` | opponentGame |
+| FG% | `FieldGoalsMade` ÷ `FieldGoalsAttempted` | teamGame |
+| Opp FG% | `FieldGoalsMade` ÷ `FieldGoalsAttempted` | opponentGame |
 | 3PM | `ThreePointersMade` | teamGame |
+| Opp 3PM | `ThreePointersMade` | opponentGame |
 | 3PA | `ThreePointersAttempted` | teamGame |
-| 3PM Allowed | `ThreePointersMade` | opponentGame |
-| 3PA Allowed | `ThreePointersAttempted` | opponentGame |
+| Opp 3PA | `ThreePointersAttempted` | opponentGame |
+| 3P% | `ThreePointersMade` ÷ `ThreePointersAttempted` | teamGame |
+| Opp 3P% | `ThreePointersMade` ÷ `ThreePointersAttempted` | opponentGame |
 | TO | `Turnovers` | teamGame |
 | Stocks | `Steals` + `BlockedShots` (precomputed) | teamGame |
 | Fouls | `PersonalFouls` | teamGame |
 | FTA | `FreeThrowsAttempted` | teamGame |
-| FTA Allowed | `FreeThrowsAttempted` | opponentGame |
+| Opp FTA | `FreeThrowsAttempted` | opponentGame |
 | OREB | `OffensiveRebounds` | teamGame |
-| OREB Allowed | `OffensiveRebounds` | opponentGame |
+| Opp OREB | `OffensiveRebounds` | opponentGame |
 | Assists | `Assists` | teamGame |
 
-"Allowed" = the same field read from the opponentGame view (label convention settled
-2026-07-24: ALL opponent stats use the "Allowed" suffix, never "Against"). The stat picker must
-map each entry to **(which list, which field)** so the transform routes to the right data.
+**Label convention: "Opp" PREFIX on every opponent stat** (settled 2026-07-30, SUPERSEDES the
+2026-07-24 "Allowed" suffix — all six existing labels were renamed). Never "Against".
+
+**`StatConfig` carries one optional `percentOf`** — every stat is a sum over a denominator, and
+only the denominator differs: counting stats divide by game count, percentages divide by
+`sumField(percentOf)` and ×100. On a percentage, `fieldName` is the numerator (the "made"
+field). Presence of `percentOf` is the ONLY signal; there is deliberately no redundant
+`isPercentage` boolean to drift out of sync. A two-shape discriminated union was built first
+and rejected (owner, 2026-07-30) as over-engineered for an 18-row hand-maintained table.
+**Percentages are summed makes ÷ summed attempts, NEVER an average of per-game percentages** —
+the latter weighs a 3/6 night the same as an 8/24 one and is simply the wrong number.
+Guard: attempts of 0 → value 0.
 
 ## Verified facts about the API payload (confirmed from a real response — don't re-check)
 
@@ -242,9 +261,9 @@ Basketball decision-makers are also more used to per-game numbers.
 ## Front-end design (locked 2026-07-24, from owner's notebook mockup)
 
 Three-zone layout, title centered at top (title TEXT is still TBD — use a placeholder):
-- **Left rail — stat picker:** 14 rounded pill buttons, one per stat, in this order/labels:
-  Points, Points Allowed, 3PM, 3PM Allowed, 3PA, 3PA Allowed, TO, Stocks, Fouls, FTA,
-  FTA Allowed, OREB, OREB Allowed, Assists. Hoverable; the selected pill must be clearly
+- **Left rail — stat picker:** 18 rounded pill buttons, one per stat, in the order listed in
+  the stats table above (Points → Assists, with each "Opp" twin following its own stat).
+  Hoverable; the selected pill must be clearly
   distinct (working treatment: filled accent blue, white text; unselected = surface bg with
   line border; hover = light tint).
 - **Center — the chart** (hand-rolled Framer Motion horizontal bars, per the chart section).

@@ -9,6 +9,8 @@ export interface TeamGame {
   teamId: number
   teamKey: string
   points: number
+  fieldGoalsMade: number
+  fieldGoalsAttempted: number
   threePointersMade: number
   threePointersAttempted: number
   turnovers: number
@@ -25,6 +27,8 @@ export interface OpponentGame {
   teamId: number
   teamKey: string
   points: number
+  fieldGoalsMade: number
+  fieldGoalsAttempted: number
   threePointersMade: number
   threePointersAttempted: number
   freeThrowsAttempted: number
