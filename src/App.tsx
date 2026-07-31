@@ -97,7 +97,7 @@ function App() {
   }
 
   //user should be able to clear a single selection
-  const hasSelection = selectedStat !== null || selectedGameRange !== null
+  const hasSelection = selectedStat !== null || selectedGameRange !== null  || selectedTeams.size > 0
   //invert button should only work when there is data on the chart
   const isCharting = selectedStat !== null && selectedGameRange !== null
 
